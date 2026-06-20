@@ -187,10 +187,140 @@ export const placeOrderWithoutPayment = mutation({
 
 // ── Admin queries ─────────────────────────────────────────────────────────────
 
-export const adminListAll = query({
+// Status literals mirrored here so args can be validated at the boundary.
+const ORDER_STATUS_VALIDATOR = v.union(
+  v.literal("placed"),
+  v.literal("confirmed"),
+  v.literal("preparing"),
+  v.literal("out_for_delivery"),
+  v.literal("delivered"),
+  v.literal("cancelled")
+);
+const PAYMENT_STATUS_VALIDATOR = v.union(
+  v.literal("pending"),
+  v.literal("paid"),
+  v.literal("failed"),
+  v.literal("refunded")
+);
+
+export const adminGetOrders = query({
+  args: {
+    status: v.optional(ORDER_STATUS_VALIDATOR),
+    paymentStatus: v.optional(PAYMENT_STATUS_VALIDATOR),
+    search: v.optional(v.string()),
+  },
+  handler: async (ctx, { status, paymentStatus, search }) => {
+    await assertAdmin(ctx);
+
+    // Use the right index so the DB filters before JS touches the data.
+    // Each branch .take(500) after the index scan — far better than the
+    // previous approach of taking 200 unfiltered rows and then filtering.
+    let orders;
+    if (status && paymentStatus) {
+      orders = await ctx.db
+        .query("orders")
+        .withIndex("by_status_paymentStatus", (q) =>
+          q.eq("status", status).eq("paymentStatus", paymentStatus)
+        )
+        .order("desc")
+        .take(500);
+    } else if (status) {
+      orders = await ctx.db
+        .query("orders")
+        .withIndex("by_status", (q) => q.eq("status", status))
+        .order("desc")
+        .take(500);
+    } else if (paymentStatus) {
+      orders = await ctx.db
+        .query("orders")
+        .withIndex("by_paymentStatus", (q) =>
+          q.eq("paymentStatus", paymentStatus)
+        )
+        .order("desc")
+        .take(500);
+    } else {
+      // No status/payment filter — full scan, newest first.
+      orders = await ctx.db.query("orders").order("desc").take(500);
+    }
+
+    // orderNumber search runs in JS only on the already-filtered (small) set.
+    if (search) {
+      const q = search.toLowerCase();
+      orders = orders.filter((o) => o.orderNumber.toLowerCase().includes(q));
+    }
+
+    return Promise.all(
+      orders.map(async (order) => {
+        const user = await ctx.db.get(order.userId);
+        return {
+          ...order,
+          customer: user
+            ? { name: user.name ?? null, email: user.email }
+            : null,
+        };
+      })
+    );
+  },
+});
+
+export const adminGetOrderDetail = query({
+  args: { orderId: v.id("orders") },
+  handler: async (ctx, { orderId }) => {
+    await assertAdmin(ctx);
+
+    const order = await ctx.db.get(orderId);
+    if (!order) return null;
+
+    const [items, address, user] = await Promise.all([
+      ctx.db
+        .query("orderItems")
+        .withIndex("by_orderId", (q) => q.eq("orderId", orderId))
+        .collect(),
+      ctx.db.get(order.addressId),
+      ctx.db.get(order.userId),
+    ]);
+
+    return { order, items, address, user };
+  },
+});
+
+export const adminUpdateOrderStatus = mutation({
+  args: {
+    orderId: v.id("orders"),
+    status: v.union(
+      v.literal("placed"),
+      v.literal("confirmed"),
+      v.literal("preparing"),
+      v.literal("out_for_delivery"),
+      v.literal("delivered"),
+      v.literal("cancelled")
+    ),
+  },
+  handler: async (ctx, { orderId, status }) => {
+    await assertAdmin(ctx);
+    const order = await ctx.db.get(orderId);
+    if (!order) throw new ConvexError("Order not found");
+    await ctx.db.patch(orderId, { status, updatedAt: Date.now() });
+  },
+});
+
+export const adminGetOrderStats = query({
   args: {},
   handler: async (ctx) => {
     await assertAdmin(ctx);
-    return ctx.db.query("orders").order("desc").take(100);
+    const orders = await ctx.db.query("orders").collect();
+    return {
+      total: orders.length,
+      placed: orders.filter((o) => o.status === "placed").length,
+      confirmed: orders.filter((o) => o.status === "confirmed").length,
+      preparing: orders.filter((o) => o.status === "preparing").length,
+      outForDelivery: orders.filter((o) => o.status === "out_for_delivery").length,
+      delivered: orders.filter((o) => o.status === "delivered").length,
+      cancelled: orders.filter((o) => o.status === "cancelled").length,
+      pendingPayment: orders.filter((o) => o.paymentStatus === "pending").length,
+    };
   },
 });
+
+// Keep for any existing references
+export const adminListAll = adminGetOrders;
