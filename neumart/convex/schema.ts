@@ -13,15 +13,21 @@ export default defineSchema({
 
   addresses: defineTable({
     userId: v.id("users"),
-    name: v.string(),
+    name: v.string(),       // recipient full name
     phone: v.string(),
     line1: v.string(),
     line2: v.optional(v.string()),
+    landmark: v.optional(v.string()),
     city: v.string(),
     state: v.string(),
     pincode: v.string(),
+    country: v.optional(v.string()),
     isDefault: v.boolean(),
-  }).index("by_userId", ["userId"]),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_userId_isDefault", ["userId", "isDefault"]),
 
   categories: defineTable({
     name: v.string(),

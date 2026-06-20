@@ -2,15 +2,38 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Package, ShoppingCart, Trash2 } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
+import { useConvexAuth, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/store/cart-store";
 
 export default function CartPage() {
+  const router = useRouter();
+  const { isSignedIn } = useUser();
+  const { isAuthenticated } = useConvexAuth();
   const { items, updateQuantity, removeItem } = useCartStore();
+  const hasAddr = useQuery(api.addresses.hasAddress, isAuthenticated ? {} : "skip");
+
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
+
+  function handleCheckout() {
+    if (!isSignedIn) {
+      router.push("/sign-in");
+      return;
+    }
+    if (!hasAddr) {
+      router.push("/addresses/new");
+      return;
+    }
+    router.push("/checkout");
+  }
+
+  const checkoutLoading = isAuthenticated && hasAddr === undefined;
 
   if (items.length === 0) {
     return (
@@ -121,12 +144,19 @@ export default function CartPage() {
         </div>
 
         <div className="flex flex-col items-end gap-1">
-          <Button size="lg" disabled className="w-full sm:w-auto">
-            Proceed to checkout
+          <Button
+            size="lg"
+            className="w-full sm:w-auto"
+            onClick={handleCheckout}
+            disabled={checkoutLoading}
+          >
+            {checkoutLoading ? "Loading…" : "Proceed to checkout"}
           </Button>
-          <p className="text-xs text-muted-foreground">
-            Razorpay checkout coming in the next phase
-          </p>
+          {isAuthenticated && hasAddr === false && (
+            <p className="text-xs text-muted-foreground">
+              You need a delivery address to continue.
+            </p>
+          )}
         </div>
       </div>
     </div>

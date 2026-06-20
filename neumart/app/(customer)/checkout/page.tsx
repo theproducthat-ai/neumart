@@ -1,0 +1,170 @@
+"use client";
+
+import { useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useConvexAuth, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useCartStore } from "@/store/cart-store";
+import { Package, MapPin, ArrowLeft, Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+
+export default function CheckoutPage() {
+  const router = useRouter();
+  const { isAuthenticated } = useConvexAuth();
+  const { items } = useCartStore();
+
+  const defaultAddress = useQuery(
+    api.addresses.getDefaultAddress,
+    isAuthenticated ? {} : "skip"
+  );
+
+  // Redirect to cart if empty
+  useEffect(() => {
+    if (items.length === 0) {
+      router.replace("/cart");
+    }
+  }, [items.length, router]);
+
+  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
+
+  if (items.length === 0) {
+    return null; // redirecting
+  }
+
+  return (
+    <div className="container mx-auto max-w-5xl px-4 py-8">
+      <Button variant="ghost" size="sm" asChild className="-ml-2 mb-6">
+        <Link href="/cart">
+          <ArrowLeft className="mr-1 h-4 w-4" />
+          Back to cart
+        </Link>
+      </Button>
+
+      <h1 className="mb-8 text-2xl font-bold">Checkout</h1>
+
+      <div className="grid gap-8 lg:grid-cols-3">
+        {/* Left – order items */}
+        <div className="lg:col-span-2 space-y-4">
+          <h2 className="font-semibold text-lg">Your items</h2>
+
+          <div className="rounded-lg border divide-y">
+            {items.map((item) => (
+              <div key={item.productId} className="flex items-center gap-4 p-4">
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
+                  {item.imageUrl ? (
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                      sizes="56px"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center">
+                      <Package className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium">{item.name}</p>
+                  <p className="text-sm text-muted-foreground">{item.unit}</p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="text-sm text-muted-foreground">
+                    {item.quantity} × ₹{(item.price / 100).toFixed(2)}
+                  </p>
+                  <p className="font-semibold">
+                    ₹{((item.price * item.quantity) / 100).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right – summary + address + payment */}
+        <div className="space-y-5">
+          {/* Order summary */}
+          <div className="rounded-lg border p-5 space-y-3">
+            <h2 className="font-semibold">Order summary</h2>
+            <Separator />
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">
+                Subtotal ({items.reduce((s, i) => s + i.quantity, 0)} items)
+              </span>
+              <span>₹{(subtotal / 100).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Delivery</span>
+              <span className="text-muted-foreground">Calculated at payment</span>
+            </div>
+            <Separator />
+            <div className="flex justify-between font-bold">
+              <span>Total</span>
+              <span>₹{(subtotal / 100).toFixed(2)}</span>
+            </div>
+          </div>
+
+          {/* Delivery address */}
+          <div className="rounded-lg border p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold">Delivery address</h2>
+              <Button variant="ghost" size="sm" asChild className="h-auto p-0 text-sm">
+                <Link href="/addresses">
+                  {defaultAddress ? "Change" : "Add"}
+                </Link>
+              </Button>
+            </div>
+            <Separator />
+
+            {defaultAddress === undefined ? (
+              <Skeleton className="h-20 w-full" />
+            ) : defaultAddress === null ? (
+              <div className="flex flex-col items-center py-4 text-center">
+                <MapPin className="mb-2 h-8 w-8 text-muted-foreground" />
+                <p className="mb-3 text-sm text-muted-foreground">
+                  No delivery address saved.
+                </p>
+                <Button size="sm" asChild>
+                  <Link href="/addresses/new">Add address</Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="text-sm space-y-0.5">
+                <p className="font-medium">{defaultAddress.name}</p>
+                <p className="text-muted-foreground">{defaultAddress.phone}</p>
+                <p className="text-muted-foreground">
+                  {defaultAddress.line1}
+                  {defaultAddress.line2 ? `, ${defaultAddress.line2}` : ""}
+                </p>
+                {defaultAddress.landmark && (
+                  <p className="text-muted-foreground">
+                    Near {defaultAddress.landmark}
+                  </p>
+                )}
+                <p className="text-muted-foreground">
+                  {defaultAddress.city}, {defaultAddress.state} — {defaultAddress.pincode}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Payment placeholder */}
+          <div className="rounded-lg border border-dashed p-5 space-y-3 bg-muted/30">
+            <Button className="w-full" disabled size="lg">
+              <Lock className="mr-2 h-4 w-4" />
+              Proceed to Payment
+            </Button>
+            <p className="text-center text-xs text-muted-foreground">
+              Razorpay payment integration coming in the next phase.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
