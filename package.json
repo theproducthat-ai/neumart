@@ -7,7 +7,8 @@
     "backend": "pnpm --dir neumart backend",
     "build": "pnpm --dir neumart build",
     "start": "pnpm --dir neumart start",
-    "lint": "pnpm --dir neumart lint"
+    "lint": "pnpm --dir neumart lint",
+    "typecheck": "pnpm --dir neumart typecheck"
   },
   "dependencies": {
     "convex": "^1.41.0"
