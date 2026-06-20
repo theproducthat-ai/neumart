@@ -58,6 +58,7 @@ export default function EditProductPage() {
               unit: product.unit,
               imageUrl: product.imageUrl ?? "",
               stockQuantity: product.stockQuantity,
+              lowStockThreshold: product.lowStockThreshold ?? 5,
               isActive: product.isActive,
               isFeatured: product.isFeatured ?? false,
             }}

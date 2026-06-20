@@ -43,6 +43,7 @@ const schema = z.object({
   unit: z.string().min(1, "Unit is required"),
   imageUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   stockQuantity: z.coerce.number().int().min(0, "Stock must be 0 or more"),
+  lowStockThreshold: z.coerce.number().int().min(0, "Threshold must be 0 or more").optional(),
   isActive: z.boolean(),
   isFeatured: z.boolean(),
 });
@@ -72,6 +73,7 @@ export function ProductForm({ mode, productId, defaultValues }: ProductFormProps
       unit: "",
       imageUrl: "",
       stockQuantity: 0,
+      lowStockThreshold: 5,
       isActive: true,
       isFeatured: false,
       ...defaultValues,
@@ -104,6 +106,7 @@ export function ProductForm({ mode, productId, defaultValues }: ProductFormProps
           unit: values.unit,
           imageUrl,
           stockQuantity: values.stockQuantity,
+          lowStockThreshold: values.lowStockThreshold ?? undefined,
           isActive: values.isActive,
           isFeatured: values.isFeatured || undefined,
         });
@@ -120,6 +123,7 @@ export function ProductForm({ mode, productId, defaultValues }: ProductFormProps
           unit: values.unit,
           imageUrl,
           stockQuantity: values.stockQuantity,
+          lowStockThreshold: values.lowStockThreshold ?? undefined,
           isActive: values.isActive,
           isFeatured: values.isFeatured || undefined,
         });
@@ -277,6 +281,22 @@ export function ProductForm({ mode, productId, defaultValues }: ProductFormProps
               <FormControl>
                 <Input type="number" min={0} placeholder="0" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Low stock threshold */}
+        <FormField
+          control={form.control}
+          name="lowStockThreshold"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Low stock threshold</FormLabel>
+              <FormControl>
+                <Input type="number" min={0} placeholder="5" {...field} />
+              </FormControl>
+              <FormDescription>Alert when stock falls to or below this number. Default is 5.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

@@ -171,14 +171,31 @@ export const placeOrderWithoutPayment = mutation({
       )
     );
 
-    // 8. Reduce stock — runs last so rollback is safe if anything above fails
+    // 8. Reduce stock and create audit records — runs last so rollback is safe
     await Promise.all(
-      resolvedItems.map((item, i) =>
-        ctx.db.patch(item.productId, {
-          stockQuantity: productDocs[i]!.stockQuantity - item.quantity,
+      resolvedItems.map(async (item, i) => {
+        const previousStock = productDocs[i]!.stockQuantity;
+        const newStock = previousStock - item.quantity;
+
+        await ctx.db.patch(item.productId, {
+          stockQuantity: newStock,
           updatedAt: now,
-        })
-      )
+          lastStockUpdatedAt: now,
+        });
+
+        await ctx.db.insert("stockMovements", {
+          productId: item.productId,
+          type: "order_placed",
+          quantityChange: -item.quantity,
+          previousStock,
+          newStock,
+          reason: `Order ${makeOrderNumber(now)}`,
+          referenceType: "order",
+          referenceId: orderId as string,
+          createdBy: user._id as string,
+          createdAt: now,
+        });
+      })
     );
 
     return orderId;

@@ -12,6 +12,7 @@ import type * as addresses from "../addresses.js";
 import type * as categories from "../categories.js";
 import type * as favourites from "../favourites.js";
 import type * as helpers from "../helpers.js";
+import type * as inventory from "../inventory.js";
 import type * as orderItems from "../orderItems.js";
 import type * as orders from "../orders.js";
 import type * as payments from "../payments.js";
@@ -29,6 +30,7 @@ declare const fullApi: ApiFromModules<{
   categories: typeof categories;
   favourites: typeof favourites;
   helpers: typeof helpers;
+  inventory: typeof inventory;
   orderItems: typeof orderItems;
   orders: typeof orders;
   payments: typeof payments;

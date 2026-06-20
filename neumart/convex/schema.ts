@@ -51,10 +51,12 @@ export default defineSchema({
     unit: v.string(),  // e.g. "500g", "1L", "6 pcs"
     imageUrl: v.optional(v.string()),
     stockQuantity: v.number(),
+    lowStockThreshold: v.optional(v.number()), // default treated as 5 in UI/logic
     isActive: v.boolean(),
     isFeatured: v.optional(v.boolean()),
     createdAt: v.number(),
     updatedAt: v.number(),
+    lastStockUpdatedAt: v.optional(v.number()),
   })
     .index("by_categoryId", ["categoryId"])
     .index("by_slug", ["slug"])
@@ -117,6 +119,26 @@ export default defineSchema({
     lineTotal: v.number(),         // paise (priceSnapshot × quantity)
     createdAt: v.number(),
   }).index("by_orderId", ["orderId"]),
+
+  stockMovements: defineTable({
+    productId: v.id("products"),
+    type: v.union(
+      v.literal("order_placed"),
+      v.literal("manual_adjustment"),
+      v.literal("restock"),
+      v.literal("stock_correction"),
+    ),
+    quantityChange: v.number(), // negative for deductions
+    previousStock: v.number(),
+    newStock: v.number(),
+    reason: v.string(),
+    referenceType: v.optional(v.union(v.literal("order"), v.literal("manual"))),
+    referenceId: v.optional(v.string()), // orderId or manual note
+    createdBy: v.string(),              // tokenIdentifier or userId string
+    createdAt: v.number(),
+  })
+    .index("by_productId", ["productId"])
+    .index("by_productId_and_createdAt", ["productId", "createdAt"]),
 
   payments: defineTable({
     orderId: v.id("orders"),
