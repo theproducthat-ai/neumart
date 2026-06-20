@@ -1,25 +1,71 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // DEVELOPMENT ONLY — Seed data for local development and demo environments.
 // Run via: npx convex run seed:seedDevelopmentData
-// Safe to run multiple times — skips if categories already exist.
+// Safe to run multiple times — skips individual slugs that already exist,
+// so partial data is completed rather than aborted.
 // No auth guard: CLI access to the Convex project is the access control here.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { Id } from "./_generated/dataModel";
 import { mutation } from "./_generated/server";
+import type { MutationCtx } from "./_generated/server";
+
+// Returns the existing category ID if the slug is taken, otherwise inserts and returns the new ID.
+async function upsertCategory(
+  ctx: MutationCtx,
+  fields: {
+    name: string;
+    slug: string;
+    description: string;
+    isActive: boolean;
+    sortOrder: number;
+    createdAt: number;
+    updatedAt: number;
+  }
+): Promise<Id<"categories">> {
+  const existing = await ctx.db
+    .query("categories")
+    .withIndex("by_slug", (q) => q.eq("slug", fields.slug))
+    .unique();
+  if (existing) return existing._id;
+  return ctx.db.insert("categories", fields);
+}
+
+// Inserts a product only if its slug doesn't already exist.
+async function upsertProduct(
+  ctx: MutationCtx,
+  fields: {
+    name: string;
+    slug: string;
+    description: string;
+    categoryId: Id<"categories">;
+    price: number;
+    unit: string;
+    stockQuantity: number;
+    lowStockThreshold: number;
+    isActive: boolean;
+    isFeatured: boolean;
+    createdAt: number;
+    updatedAt: number;
+  }
+): Promise<boolean> {
+  const existing = await ctx.db
+    .query("products")
+    .withIndex("by_slug", (q) => q.eq("slug", fields.slug))
+    .unique();
+  if (existing) return false;
+  await ctx.db.insert("products", fields);
+  return true;
+}
 
 export const seedDevelopmentData = mutation({
   args: {},
   handler: async (ctx) => {
-    const existing = await ctx.db.query("categories").take(1);
-    if (existing.length > 0) {
-      return { message: "Already seeded — skipping", skipped: true };
-    }
-
     const now = Date.now();
 
     // ── Categories ───────────────────────────────────────────────────────────
 
-    const fruitsId = await ctx.db.insert("categories", {
+    const fruitsId = await upsertCategory(ctx, {
       name: "Fruits",
       slug: "fruits",
       description: "Fresh seasonal and exotic fruits",
@@ -29,7 +75,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    const vegetablesId = await ctx.db.insert("categories", {
+    const vegetablesId = await upsertCategory(ctx, {
       name: "Vegetables",
       slug: "vegetables",
       description: "Farm-fresh vegetables delivered daily",
@@ -39,7 +85,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    const dairyId = await ctx.db.insert("categories", {
+    const dairyId = await upsertCategory(ctx, {
       name: "Dairy",
       slug: "dairy",
       description: "Milk, paneer, curd, butter and more",
@@ -49,7 +95,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    const bakeryId = await ctx.db.insert("categories", {
+    const bakeryId = await upsertCategory(ctx, {
       name: "Bakery",
       slug: "bakery",
       description: "Breads, rolls and baked goods",
@@ -59,7 +105,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    const beveragesId = await ctx.db.insert("categories", {
+    const beveragesId = await upsertCategory(ctx, {
       name: "Beverages",
       slug: "beverages",
       description: "Water, juices, tea, coffee and more",
@@ -69,7 +115,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    const snacksId = await ctx.db.insert("categories", {
+    const snacksId = await upsertCategory(ctx, {
       name: "Snacks",
       slug: "snacks",
       description: "Chips, biscuits, nuts and light bites",
@@ -79,7 +125,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    const staplesId = await ctx.db.insert("categories", {
+    const staplesId = await upsertCategory(ctx, {
       name: "Staples",
       slug: "staples",
       description: "Rice, dal, atta, oil and pantry essentials",
@@ -89,7 +135,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    const householdId = await ctx.db.insert("categories", {
+    const householdId = await upsertCategory(ctx, {
       name: "Household",
       slug: "household",
       description: "Cleaning supplies and home essentials",
@@ -101,7 +147,7 @@ export const seedDevelopmentData = mutation({
 
     // ── Products — Fruits (5) ────────────────────────────────────────────────
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Bananas",
       slug: "bananas",
       description: "Sweet and ripe Robusta bananas. Great for breakfast or as a quick snack.",
@@ -116,7 +162,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Shimla Apples",
       slug: "shimla-apples",
       description: "Crisp and juicy apples from Himachal Pradesh. Rich in fibre and vitamins.",
@@ -131,7 +177,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Alphonso Mangoes",
       slug: "alphonso-mangoes",
       description: "Premium Alphonso mangoes from Ratnagiri. The king of fruits.",
@@ -146,7 +192,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Oranges",
       slug: "oranges",
       description: "Juicy Nagpur oranges. Excellent source of Vitamin C.",
@@ -161,7 +207,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Watermelon",
       slug: "watermelon",
       description: "Sweet and refreshing seedless watermelon. Perfect for summer.",
@@ -178,7 +224,7 @@ export const seedDevelopmentData = mutation({
 
     // ── Products — Vegetables (5) ────────────────────────────────────────────
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Tomatoes",
       slug: "tomatoes",
       description: "Fresh red tomatoes. Ideal for curries, salads and chutneys.",
@@ -193,7 +239,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Potatoes",
       slug: "potatoes",
       description: "Farm-fresh potatoes. A kitchen essential for all Indian cooking.",
@@ -208,7 +254,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Onions",
       slug: "onions",
       description: "Fresh onions, a staple in every Indian kitchen.",
@@ -223,7 +269,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Palak (Spinach)",
       slug: "palak-spinach",
       description: "Fresh green spinach leaves. Rich in iron and vitamins.",
@@ -238,7 +284,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Cauliflower",
       slug: "cauliflower",
       description: "Tender white cauliflower, perfect for sabzi and soups.",
@@ -255,7 +301,7 @@ export const seedDevelopmentData = mutation({
 
     // ── Products — Dairy (4) ─────────────────────────────────────────────────
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Full Cream Milk",
       slug: "full-cream-milk",
       description: "Fresh full cream milk. Pasteurised and homogenised.",
@@ -270,7 +316,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Fresh Paneer",
       slug: "fresh-paneer",
       description: "Soft and creamy fresh paneer. Made daily from whole milk.",
@@ -285,7 +331,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Curd",
       slug: "curd",
       description: "Thick set curd. Probiotic-rich and great with every meal.",
@@ -300,7 +346,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Amul Butter",
       slug: "amul-butter",
       description: "Salted butter. Perfect for spreading, cooking and baking.",
@@ -317,7 +363,7 @@ export const seedDevelopmentData = mutation({
 
     // ── Products — Bakery (4) ────────────────────────────────────────────────
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "White Sandwich Bread",
       slug: "white-sandwich-bread",
       description: "Soft white bread, pre-sliced. Great for sandwiches and toast.",
@@ -332,7 +378,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Brown Bread",
       slug: "brown-bread",
       description: "Wholesome brown bread with added fibre. A healthier choice.",
@@ -347,7 +393,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Dinner Rolls",
       slug: "dinner-rolls",
       description: "Soft, pillowy dinner rolls. Freshly baked every morning.",
@@ -362,7 +408,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Butter Croissants",
       slug: "butter-croissants",
       description: "Flaky, golden croissants made with real butter. Baked fresh daily.",
@@ -379,7 +425,7 @@ export const seedDevelopmentData = mutation({
 
     // ── Products — Beverages (4) ─────────────────────────────────────────────
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Mineral Water",
       slug: "mineral-water-1l",
       description: "Natural mineral water. Pure and refreshing.",
@@ -394,7 +440,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Fresh Orange Juice",
       slug: "fresh-orange-juice",
       description: "Cold-pressed orange juice with no added sugar or preservatives.",
@@ -409,7 +455,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Arabica Ground Coffee",
       slug: "arabica-ground-coffee",
       description: "Medium roast 100% Arabica ground coffee. Rich, smooth flavour.",
@@ -424,7 +470,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Green Tea",
       slug: "green-tea",
       description: "Premium Darjeeling green tea leaves. Antioxidant-rich and refreshing.",
@@ -441,7 +487,7 @@ export const seedDevelopmentData = mutation({
 
     // ── Products — Snacks (4) ────────────────────────────────────────────────
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Salted Almonds",
       slug: "salted-almonds",
       description: "Premium roasted almonds with a light salt seasoning.",
@@ -456,7 +502,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Classic Potato Chips",
       slug: "classic-potato-chips",
       description: "Thin, crispy salted potato chips. Ideal tea-time snack.",
@@ -471,7 +517,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Mixed Namkeen",
       slug: "mixed-namkeen",
       description: "Assorted savoury snack mix with sev, peanuts and dal moth.",
@@ -486,7 +532,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Digestive Biscuits",
       slug: "digestive-biscuits",
       description: "Wholesome wheat biscuits with a light sweet flavour.",
@@ -503,7 +549,7 @@ export const seedDevelopmentData = mutation({
 
     // ── Products — Staples (5) ───────────────────────────────────────────────
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Basmati Rice",
       slug: "basmati-rice",
       description: "Aged extra-long grain basmati rice. Aromatic and fluffy.",
@@ -518,7 +564,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Toor Dal",
       slug: "toor-dal",
       description: "Premium split pigeon peas. The base of every good dal tadka.",
@@ -533,7 +579,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Sunflower Oil",
       slug: "sunflower-oil-1l",
       description: "Refined sunflower oil. Light, cholesterol-free cooking oil.",
@@ -548,7 +594,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Whole Wheat Atta",
       slug: "whole-wheat-atta",
       description: "Stone-ground whole wheat flour. For soft, nutritious rotis.",
@@ -563,7 +609,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Moong Dal",
       slug: "moong-dal",
       description: "Split yellow moong lentils. Quick to cook and easy to digest.",
@@ -580,7 +626,7 @@ export const seedDevelopmentData = mutation({
 
     // ── Products — Household (5) ─────────────────────────────────────────────
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Dish Wash Liquid",
       slug: "dish-wash-liquid",
       description: "Tough on grease, gentle on hands. Lemon fragrance.",
@@ -595,7 +641,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Floor Cleaner",
       slug: "floor-cleaner",
       description: "Disinfectant floor cleaner with pine fragrance. Kills 99.9% germs.",
@@ -610,7 +656,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Laundry Detergent",
       slug: "laundry-detergent",
       description: "Front-load safe laundry detergent. Removes tough stains.",
@@ -625,7 +671,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Toilet Cleaner",
       slug: "toilet-cleaner",
       description: "Thick gel toilet cleaner with descaling action.",
@@ -640,7 +686,7 @@ export const seedDevelopmentData = mutation({
       updatedAt: now,
     });
 
-    await ctx.db.insert("products", {
+    await upsertProduct(ctx, {
       name: "Garbage Bags",
       slug: "garbage-bags",
       description: "Biodegradable garbage bags. Fits standard bins.",
@@ -656,9 +702,8 @@ export const seedDevelopmentData = mutation({
     });
 
     return {
-      message: "Seed data inserted successfully",
-      categoryCount: 8,
-      productCount: 36,
+      message: "Seed complete",
+      note: "Existing slugs were skipped. Check /products and /admin/categories to verify.",
     };
   },
 });
