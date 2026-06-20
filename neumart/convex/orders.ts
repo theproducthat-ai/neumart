@@ -325,16 +325,64 @@ export const adminGetOrderStats = query({
   args: {},
   handler: async (ctx) => {
     await assertAdmin(ctx);
-    const orders = await ctx.db.query("orders").collect();
+
+    // Each query uses its index partition — O(count_for_that_status) not O(all_orders).
+    // This replaces the previous full-table collect(). Scales well up to ~100k per bucket.
+    // For O(log n) counts at very high volume, migrate to @convex-dev/aggregate.
+    const [
+      placed,
+      confirmed,
+      preparing,
+      outForDelivery,
+      delivered,
+      cancelled,
+      pendingPayment,
+    ] = await Promise.all([
+      ctx.db
+        .query("orders")
+        .withIndex("by_status", (q) => q.eq("status", "placed"))
+        .collect(),
+      ctx.db
+        .query("orders")
+        .withIndex("by_status", (q) => q.eq("status", "confirmed"))
+        .collect(),
+      ctx.db
+        .query("orders")
+        .withIndex("by_status", (q) => q.eq("status", "preparing"))
+        .collect(),
+      ctx.db
+        .query("orders")
+        .withIndex("by_status", (q) => q.eq("status", "out_for_delivery"))
+        .collect(),
+      ctx.db
+        .query("orders")
+        .withIndex("by_status", (q) => q.eq("status", "delivered"))
+        .collect(),
+      ctx.db
+        .query("orders")
+        .withIndex("by_status", (q) => q.eq("status", "cancelled"))
+        .collect(),
+      ctx.db
+        .query("orders")
+        .withIndex("by_paymentStatus", (q) => q.eq("paymentStatus", "pending"))
+        .collect(),
+    ]);
+
     return {
-      total: orders.length,
-      placed: orders.filter((o) => o.status === "placed").length,
-      confirmed: orders.filter((o) => o.status === "confirmed").length,
-      preparing: orders.filter((o) => o.status === "preparing").length,
-      outForDelivery: orders.filter((o) => o.status === "out_for_delivery").length,
-      delivered: orders.filter((o) => o.status === "delivered").length,
-      cancelled: orders.filter((o) => o.status === "cancelled").length,
-      pendingPayment: orders.filter((o) => o.paymentStatus === "pending").length,
+      total:
+        placed.length +
+        confirmed.length +
+        preparing.length +
+        outForDelivery.length +
+        delivered.length +
+        cancelled.length,
+      placed: placed.length,
+      confirmed: confirmed.length,
+      preparing: preparing.length,
+      outForDelivery: outForDelivery.length,
+      delivered: delivered.length,
+      cancelled: cancelled.length,
+      pendingPayment: pendingPayment.length,
     };
   },
 });

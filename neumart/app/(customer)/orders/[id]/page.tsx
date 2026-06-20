@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { use } from "react";
+import { use, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -54,12 +54,17 @@ function formatDate(ts: number) {
   });
 }
 
-export default function OrderDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+function OrderDetailSkeleton() {
+  return (
+    <div className="container mx-auto max-w-3xl px-4 py-8">
+      <Skeleton className="mb-4 h-8 w-48" />
+      <Skeleton className="mb-6 h-24 w-full rounded-lg" />
+      <Skeleton className="h-64 w-full rounded-lg" />
+    </div>
+  );
+}
+
+function OrderDetailContent({ id }: { id: string }) {
   const searchParams = useSearchParams();
   const justPlaced = searchParams.get("placed") === "1";
   const { isAuthenticated } = useConvexAuth();
@@ -70,13 +75,7 @@ export default function OrderDetailPage({
   );
 
   if (!isAuthenticated || detail === undefined) {
-    return (
-      <div className="container mx-auto max-w-3xl px-4 py-8">
-        <Skeleton className="mb-4 h-8 w-48" />
-        <Skeleton className="mb-6 h-24 w-full rounded-lg" />
-        <Skeleton className="h-64 w-full rounded-lg" />
-      </div>
-    );
+    return <OrderDetailSkeleton />;
   }
 
   if (detail === null) {
@@ -230,5 +229,18 @@ export default function OrderDetailPage({
         </div>
       )}
     </div>
+  );
+}
+
+export default function OrderDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  return (
+    <Suspense fallback={<OrderDetailSkeleton />}>
+      <OrderDetailContent id={id} />
+    </Suspense>
   );
 }
