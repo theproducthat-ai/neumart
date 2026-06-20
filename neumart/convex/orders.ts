@@ -89,9 +89,7 @@ export const createOrder = mutation({
 export const adminListAll = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new ConvexError("Unauthenticated");
-    assertAdmin(identity);
+    await assertAdmin(ctx);
     return ctx.db.query("orders").order("desc").take(100);
   },
 });

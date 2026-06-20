@@ -1,5 +1,4 @@
 import { ConvexError } from "convex/values";
-import type { UserIdentity } from "convex/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 
 export async function getOrCreateUser(ctx: MutationCtx) {
@@ -40,11 +39,18 @@ export async function requireCurrentUser(ctx: QueryCtx) {
   return user;
 }
 
-export function assertAdmin(identity: UserIdentity): void {
-  // Requires Clerk JWT template: { "metadata": "{{user.public_metadata}}" }
-  const metadata = (identity as unknown as { metadata?: { role?: string } })
-    .metadata;
-  if (metadata?.role !== "admin") {
+export async function assertAdmin(ctx: QueryCtx | MutationCtx): Promise<void> {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) throw new ConvexError("Unauthenticated");
+
+  const user = await ctx.db
+    .query("users")
+    .withIndex("by_tokenIdentifier", (q) =>
+      q.eq("tokenIdentifier", identity.tokenIdentifier)
+    )
+    .unique();
+
+  if (!user || user.role !== "admin") {
     throw new ConvexError("Forbidden: admin only");
   }
 }

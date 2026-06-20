@@ -64,12 +64,18 @@ export const searchProducts = query({
 
 // ── Admin queries ─────────────────────────────────────────────────────────────
 
+export const adminGetById = query({
+  args: { productId: v.id("products") },
+  handler: async (ctx, { productId }) => {
+    await assertAdmin(ctx);
+    return ctx.db.get(productId);
+  },
+});
+
 export const adminListAll = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new ConvexError("Unauthenticated");
-    assertAdmin(identity);
+    await assertAdmin(ctx);
     return ctx.db.query("products").order("desc").take(100);
   },
 });
@@ -90,9 +96,7 @@ export const adminCreate = mutation({
     isFeatured: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new ConvexError("Unauthenticated");
-    assertAdmin(identity);
+    await assertAdmin(ctx);
 
     const existing = await ctx.db
       .query("products")
@@ -120,9 +124,7 @@ export const adminUpdate = mutation({
     isFeatured: v.optional(v.boolean()),
   },
   handler: async (ctx, { productId, ...fields }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new ConvexError("Unauthenticated");
-    assertAdmin(identity);
+    await assertAdmin(ctx);
 
     const product = await ctx.db.get(productId);
     if (!product) throw new ConvexError("Product not found");
@@ -134,9 +136,7 @@ export const adminUpdate = mutation({
 export const adminDelete = mutation({
   args: { productId: v.id("products") },
   handler: async (ctx, { productId }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new ConvexError("Unauthenticated");
-    assertAdmin(identity);
+    await assertAdmin(ctx);
     await ctx.db.delete(productId);
   },
 });

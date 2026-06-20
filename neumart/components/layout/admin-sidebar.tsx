@@ -44,7 +44,14 @@ export function AdminSidebar() {
             <SidebarMenu>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={
+                      item.url === "/admin"
+                        ? pathname === item.url
+                        : pathname.startsWith(item.url)
+                    }
+                  >
                     <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>

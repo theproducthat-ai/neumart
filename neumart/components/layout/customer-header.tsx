@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Heart, ShoppingCart, Search } from "lucide-react";
-import { UserButton } from "@clerk/nextjs";
+import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,7 @@ export function CustomerHeader() {
   const searchParams = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
   const cartCount = useCartCount();
+  const { isSignedIn } = useUser();
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -73,7 +74,13 @@ export function CustomerHeader() {
             )}
           </div>
 
-          <UserButton />
+          {isSignedIn ? (
+            <UserButton />
+          ) : (
+            <SignInButton mode="modal">
+              <Button variant="ghost" size="sm">Sign in</Button>
+            </SignInButton>
+          )}
         </nav>
       </div>
     </header>

@@ -10,13 +10,11 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  const { userId, sessionClaims } = await auth();
+  const { userId } = await auth();
 
-  if (isAdminRoute(req)) {
-    if (!userId) return NextResponse.redirect(new URL("/sign-in", req.url));
-    const role = (sessionClaims as { metadata?: { role?: string } } | null)
-      ?.metadata?.role;
-    if (role !== "admin") return NextResponse.redirect(new URL("/", req.url));
+  // Admin routes: require authentication only — role check happens in the layout
+  if (isAdminRoute(req) && !userId) {
+    return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 
   if (!isPublicRoute(req) && !userId) {

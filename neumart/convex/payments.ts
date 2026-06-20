@@ -22,9 +22,7 @@ export const getByOrder = query({
 export const adminListAll = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new ConvexError("Unauthenticated");
-    assertAdmin(identity);
+    await assertAdmin(ctx);
     return ctx.db.query("payments").order("desc").take(100);
   },
 });

@@ -26,12 +26,18 @@ export const getBySlug = query({
 
 // ── Admin queries ─────────────────────────────────────────────────────────────
 
+export const adminGetById = query({
+  args: { categoryId: v.id("categories") },
+  handler: async (ctx, { categoryId }) => {
+    await assertAdmin(ctx);
+    return ctx.db.get(categoryId);
+  },
+});
+
 export const adminListAll = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new ConvexError("Unauthenticated");
-    assertAdmin(identity);
+    await assertAdmin(ctx);
     return ctx.db.query("categories").order("desc").take(100);
   },
 });
@@ -48,9 +54,7 @@ export const adminCreate = mutation({
     sortOrder: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new ConvexError("Unauthenticated");
-    assertAdmin(identity);
+    await assertAdmin(ctx);
 
     const existing = await ctx.db
       .query("categories")
@@ -74,9 +78,7 @@ export const adminUpdate = mutation({
     sortOrder: v.optional(v.number()),
   },
   handler: async (ctx, { categoryId, ...fields }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new ConvexError("Unauthenticated");
-    assertAdmin(identity);
+    await assertAdmin(ctx);
 
     const category = await ctx.db.get(categoryId);
     if (!category) throw new ConvexError("Category not found");
@@ -88,9 +90,7 @@ export const adminUpdate = mutation({
 export const adminDelete = mutation({
   args: { categoryId: v.id("categories") },
   handler: async (ctx, { categoryId }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new ConvexError("Unauthenticated");
-    assertAdmin(identity);
+    await assertAdmin(ctx);
     await ctx.db.delete(categoryId);
   },
 });
