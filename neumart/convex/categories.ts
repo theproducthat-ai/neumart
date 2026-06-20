@@ -2,13 +2,15 @@ import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { assertAdmin } from "./helpers";
 
-export const listActive = query({
+// ── Customer queries ─────────────────────────────────────────────────────────
+
+export const getActiveCategories = query({
   args: {},
   handler: async (ctx) => {
     return ctx.db
       .query("categories")
-      .filter((q) => q.eq(q.field("isActive"), true))
-      .take(50);
+      .withIndex("by_isActive", (q) => q.eq("isActive", true))
+      .collect();
   },
 });
 
@@ -22,22 +24,28 @@ export const getBySlug = query({
   },
 });
 
+// ── Admin queries ─────────────────────────────────────────────────────────────
+
 export const adminListAll = query({
   args: {},
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("Unauthenticated");
     assertAdmin(identity);
-    return ctx.db.query("categories").take(100);
+    return ctx.db.query("categories").order("desc").take(100);
   },
 });
+
+// ── Admin mutations ───────────────────────────────────────────────────────────
 
 export const adminCreate = mutation({
   args: {
     name: v.string(),
     slug: v.string(),
+    description: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
     isActive: v.boolean(),
+    sortOrder: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -50,7 +58,8 @@ export const adminCreate = mutation({
       .unique();
     if (existing) throw new ConvexError("Slug already in use");
 
-    return ctx.db.insert("categories", args);
+    const now = Date.now();
+    return ctx.db.insert("categories", { ...args, createdAt: now, updatedAt: now });
   },
 });
 
@@ -59,8 +68,10 @@ export const adminUpdate = mutation({
     categoryId: v.id("categories"),
     name: v.string(),
     slug: v.string(),
+    description: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
     isActive: v.boolean(),
+    sortOrder: v.optional(v.number()),
   },
   handler: async (ctx, { categoryId, ...fields }) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -70,7 +81,7 @@ export const adminUpdate = mutation({
     const category = await ctx.db.get(categoryId);
     if (!category) throw new ConvexError("Category not found");
 
-    await ctx.db.patch(categoryId, fields);
+    await ctx.db.patch(categoryId, { ...fields, updatedAt: Date.now() });
   },
 });
 

@@ -25,9 +25,15 @@ export default defineSchema({
   categories: defineTable({
     name: v.string(),
     slug: v.string(),
+    description: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
     isActive: v.boolean(),
-  }).index("by_slug", ["slug"]),
+    sortOrder: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_slug", ["slug"])
+    .index("by_isActive", ["isActive"]),
 
   products: defineTable({
     name: v.string(),
@@ -37,15 +43,24 @@ export default defineSchema({
     price: v.number(), // stored in paise (₹1 = 100 paise)
     unit: v.string(), // e.g. "500g", "1L", "6 pcs"
     imageUrl: v.optional(v.string()),
+    stockQuantity: v.number(),
     isActive: v.boolean(),
+    isFeatured: v.optional(v.boolean()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
   })
     .index("by_categoryId", ["categoryId"])
     .index("by_slug", ["slug"])
-    .searchIndex("search_by_name", { searchField: "name", filterFields: ["isActive"] }),
+    .index("by_isActive", ["isActive"])
+    .searchIndex("search_by_name", {
+      searchField: "name",
+      filterFields: ["isActive"],
+    }),
 
   favourites: defineTable({
     userId: v.id("users"),
     productId: v.id("products"),
+    createdAt: v.number(),
   })
     .index("by_userId", ["userId"])
     .index("by_userId_and_productId", ["userId", "productId"]),

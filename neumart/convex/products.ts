@@ -2,17 +2,19 @@ import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { assertAdmin } from "./helpers";
 
-export const list = query({
+// ── Customer queries ─────────────────────────────────────────────────────────
+
+export const getActiveProducts = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, { limit = 50 }) => {
     return ctx.db
       .query("products")
-      .filter((q) => q.eq(q.field("isActive"), true))
+      .withIndex("by_isActive", (q) => q.eq("isActive", true))
       .take(limit);
   },
 });
 
-export const listByCategory = query({
+export const getProductsByCategory = query({
   args: { categorySlug: v.string() },
   handler: async (ctx, { categorySlug }) => {
     const category = await ctx.db
@@ -40,7 +42,14 @@ export const getBySlug = query({
   },
 });
 
-export const search = query({
+export const getProductById = query({
+  args: { productId: v.id("products") },
+  handler: async (ctx, { productId }) => {
+    return ctx.db.get(productId);
+  },
+});
+
+export const searchProducts = query({
   args: { query: v.string() },
   handler: async (ctx, { query: searchQuery }) => {
     if (!searchQuery.trim()) return [];
@@ -53,15 +62,19 @@ export const search = query({
   },
 });
 
+// ── Admin queries ─────────────────────────────────────────────────────────────
+
 export const adminListAll = query({
   args: {},
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new ConvexError("Unauthenticated");
     assertAdmin(identity);
-    return ctx.db.query("products").take(100);
+    return ctx.db.query("products").order("desc").take(100);
   },
 });
+
+// ── Admin mutations ───────────────────────────────────────────────────────────
 
 export const adminCreate = mutation({
   args: {
@@ -72,7 +85,9 @@ export const adminCreate = mutation({
     price: v.number(),
     unit: v.string(),
     imageUrl: v.optional(v.string()),
+    stockQuantity: v.number(),
     isActive: v.boolean(),
+    isFeatured: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -85,7 +100,8 @@ export const adminCreate = mutation({
       .unique();
     if (existing) throw new ConvexError("Slug already in use");
 
-    return ctx.db.insert("products", args);
+    const now = Date.now();
+    return ctx.db.insert("products", { ...args, createdAt: now, updatedAt: now });
   },
 });
 
@@ -99,7 +115,9 @@ export const adminUpdate = mutation({
     price: v.number(),
     unit: v.string(),
     imageUrl: v.optional(v.string()),
+    stockQuantity: v.number(),
     isActive: v.boolean(),
+    isFeatured: v.optional(v.boolean()),
   },
   handler: async (ctx, { productId, ...fields }) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -109,7 +127,7 @@ export const adminUpdate = mutation({
     const product = await ctx.db.get(productId);
     if (!product) throw new ConvexError("Product not found");
 
-    await ctx.db.patch(productId, fields);
+    await ctx.db.patch(productId, { ...fields, updatedAt: Date.now() });
   },
 });
 

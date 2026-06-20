@@ -39,7 +39,7 @@ export function AdminSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Neumart Admin</SidebarGroupLabel>
+          <SidebarGroupLabel>Nuemart Admin</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
