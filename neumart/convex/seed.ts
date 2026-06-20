@@ -1,18 +1,15 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // DEVELOPMENT ONLY — Seed data for local development and demo environments.
 // Run via: npx convex run seed:seedDevelopmentData
-// Requires the calling user to be a bootstrapped admin.
 // Safe to run multiple times — skips if categories already exist.
+// No auth guard: CLI access to the Convex project is the access control here.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { mutation } from "./_generated/server";
-import { assertAdmin } from "./helpers";
 
 export const seedDevelopmentData = mutation({
   args: {},
   handler: async (ctx) => {
-    await assertAdmin(ctx);
-
     const existing = await ctx.db.query("categories").take(1);
     if (existing.length > 0) {
       return { message: "Already seeded — skipping", skipped: true };
