@@ -1,39 +1,70 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useConvexAuth, useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { useCartStore } from "@/store/cart-store";
-import { Package, MapPin, ArrowLeft, Lock } from "lucide-react";
+import { Package, MapPin, ArrowLeft, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { isAuthenticated } = useConvexAuth();
-  const { items } = useCartStore();
+  const { items, clearCart } = useCartStore();
+  const [placing, setPlacing] = useState(false);
 
   const defaultAddress = useQuery(
     api.addresses.getDefaultAddress,
     isAuthenticated ? {} : "skip"
   );
+  const placeOrder = useMutation(api.orders.placeOrderWithoutPayment);
 
-  // Redirect to cart if empty
   useEffect(() => {
     if (items.length === 0) {
       router.replace("/cart");
     }
   }, [items.length, router]);
 
-  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
+  if (items.length === 0) return null;
 
-  if (items.length === 0) {
-    return null; // redirecting
+  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const totalItems = items.reduce((s, i) => s + i.quantity, 0);
+  const deliveryFee = 0;
+  const total = subtotal + deliveryFee;
+
+  async function handlePlaceOrder() {
+    if (!defaultAddress) {
+      toast.error("Please add a delivery address before placing your order.");
+      return;
+    }
+
+    setPlacing(true);
+    try {
+      const orderId = await placeOrder({
+        addressId: defaultAddress._id as Id<"addresses">,
+        items: items.map((i) => ({
+          productId: i.productId as Id<"products">,
+          quantity: i.quantity,
+        })),
+      });
+
+      clearCart();
+      router.push(`/orders/${orderId}?placed=1`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to place order";
+      toast.error(msg);
+      setPlacing(false);
+    }
   }
+
+  const canPlaceOrder = !!defaultAddress && items.length > 0 && !placing;
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8">
@@ -49,7 +80,9 @@ export default function CheckoutPage() {
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Left – order items */}
         <div className="lg:col-span-2 space-y-4">
-          <h2 className="font-semibold text-lg">Your items</h2>
+          <h2 className="font-semibold text-lg">
+            Your items ({totalItems})
+          </h2>
 
           <div className="rounded-lg border divide-y">
             {items.map((item) => (
@@ -86,7 +119,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        {/* Right – summary + address + payment */}
+        {/* Right – summary + address + action */}
         <div className="space-y-5">
           {/* Order summary */}
           <div className="rounded-lg border p-5 space-y-3">
@@ -94,18 +127,18 @@ export default function CheckoutPage() {
             <Separator />
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">
-                Subtotal ({items.reduce((s, i) => s + i.quantity, 0)} items)
+                Subtotal ({totalItems} item{totalItems !== 1 ? "s" : ""})
               </span>
               <span>₹{(subtotal / 100).toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Delivery</span>
-              <span className="text-muted-foreground">Calculated at payment</span>
+              <span className="text-green-600 font-medium">Free</span>
             </div>
             <Separator />
             <div className="flex justify-between font-bold">
               <span>Total</span>
-              <span>₹{(subtotal / 100).toFixed(2)}</span>
+              <span>₹{(total / 100).toFixed(2)}</span>
             </div>
           </div>
 
@@ -153,16 +186,22 @@ export default function CheckoutPage() {
             )}
           </div>
 
-          {/* Payment placeholder */}
-          <div className="rounded-lg border border-dashed p-5 space-y-3 bg-muted/30">
-            <Button className="w-full" disabled size="lg">
-              <Lock className="mr-2 h-4 w-4" />
-              Proceed to Payment
-            </Button>
+          {/* Place order */}
+          <Button
+            className="w-full"
+            size="lg"
+            onClick={handlePlaceOrder}
+            disabled={!canPlaceOrder || defaultAddress === undefined}
+          >
+            <ShoppingBag className="mr-2 h-4 w-4" />
+            {placing ? "Placing order…" : "Place Order"}
+          </Button>
+
+          {defaultAddress === null && (
             <p className="text-center text-xs text-muted-foreground">
-              Razorpay payment integration coming in the next phase.
+              Add a delivery address to place your order.
             </p>
-          </div>
+          )}
         </div>
       </div>
     </div>

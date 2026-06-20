@@ -48,7 +48,7 @@ export default defineSchema({
     description: v.optional(v.string()),
     categoryId: v.id("categories"),
     price: v.number(), // stored in paise (₹1 = 100 paise)
-    unit: v.string(), // e.g. "500g", "1L", "6 pcs"
+    unit: v.string(),  // e.g. "500g", "1L", "6 pcs"
     imageUrl: v.optional(v.string()),
     stockQuantity: v.number(),
     isActive: v.boolean(),
@@ -75,46 +75,66 @@ export default defineSchema({
   orders: defineTable({
     userId: v.id("users"),
     addressId: v.id("addresses"),
+    orderNumber: v.string(),       // e.g. "NM-20260620-432800"
     status: v.union(
-      v.literal("pending"),
+      v.literal("placed"),
       v.literal("confirmed"),
-      v.literal("failed"),
+      v.literal("preparing"),
+      v.literal("out_for_delivery"),
+      v.literal("delivered"),
       v.literal("cancelled")
     ),
-    subtotal: v.number(), // paise
-    deliveryFee: v.number(), // paise
-    total: v.number(), // paise
-    razorpayOrderId: v.optional(v.string()),
+    paymentStatus: v.union(
+      v.literal("pending"),
+      v.literal("paid"),
+      v.literal("failed"),
+      v.literal("refunded")
+    ),
+    paymentMethod: v.string(),     // "pay_later", "razorpay", etc.
+    subtotal: v.number(),          // paise
+    deliveryFee: v.number(),       // paise
+    total: v.number(),             // paise
+    currency: v.string(),          // "INR"
+    itemCount: v.number(),
+    notes: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_userId", ["userId"])
-    .index("by_razorpayOrderId", ["razorpayOrderId"]),
+    .index("by_orderNumber", ["orderNumber"]),
 
   orderItems: defineTable({
     orderId: v.id("orders"),
     productId: v.id("products"),
-    productName: v.string(), // snapshot at time of order
-    price: v.number(), // paise snapshot
+    productNameSnapshot: v.string(),
+    productImageSnapshot: v.optional(v.string()),
+    unitSnapshot: v.string(),
+    priceSnapshot: v.number(),     // paise at time of order
     quantity: v.number(),
+    lineTotal: v.number(),         // paise (priceSnapshot × quantity)
+    createdAt: v.number(),
   }).index("by_orderId", ["orderId"]),
 
   payments: defineTable({
     orderId: v.id("orders"),
     userId: v.id("users"),
-    razorpayOrderId: v.string(),
-    razorpayPaymentId: v.optional(v.string()),
-    razorpaySignature: v.optional(v.string()),
+    method: v.string(),            // "pay_later", "razorpay"
     status: v.union(
-      v.literal("created"),
+      v.literal("pending"),
       v.literal("paid"),
-      v.literal("failed")
+      v.literal("failed"),
+      v.literal("refunded")
     ),
-    amount: v.number(), // paise
-    webhookVerified: v.boolean(),
+    amount: v.number(),            // paise
+    currency: v.string(),          // "INR"
+    // Gateway fields — all optional, populated when Razorpay is added
+    gatewayOrderId: v.optional(v.string()),
+    gatewayPaymentId: v.optional(v.string()),
+    gatewaySignature: v.optional(v.string()),
+    webhookVerified: v.optional(v.boolean()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_orderId", ["orderId"])
-    .index("by_razorpayOrderId", ["razorpayOrderId"]),
+    .index("by_userId", ["userId"]),
 });

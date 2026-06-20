@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Heart, MapPin, ShoppingCart, Search } from "lucide-react";
+import { Heart, MapPin, ShoppingCart, Search, ClipboardList } from "lucide-react";
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,6 +64,14 @@ export function CustomerHeader() {
             <Button variant="ghost" size="icon" asChild>
               <Link href="/addresses" aria-label="My addresses">
                 <MapPin className="h-5 w-5" />
+              </Link>
+            </Button>
+          )}
+
+          {isSignedIn && (
+            <Button variant="ghost" size="icon" asChild>
+              <Link href="/orders" aria-label="My orders">
+                <ClipboardList className="h-5 w-5" />
               </Link>
             </Button>
           )}
