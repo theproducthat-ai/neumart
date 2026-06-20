@@ -6,10 +6,6 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
 import { Plus, Pencil, Tag } from "lucide-react";
-
-function fmtDate(ts: number) {
-  return new Date(ts).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-}
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -23,15 +19,24 @@ import {
 import { PageHeader } from "@/components/admin/page-header";
 import { ActiveBadge } from "@/components/admin/status-badge";
 import { EmptyState } from "@/components/admin/empty-state";
+import { formatDate } from "@/lib/format";
 
 export default function AdminCategoriesPage() {
   const { isAuthenticated } = useConvexAuth();
   const categories = useQuery(api.categories.adminListAll, isAuthenticated ? {} : "skip");
   const adminUpdate = useMutation(api.categories.adminUpdate);
 
-  async function toggleActive(id: Id<"categories">, current: { name: string; slug: string; isActive: boolean }) {
+  async function toggleActive(
+    id: Id<"categories">,
+    current: { name: string; slug: string; isActive: boolean }
+  ) {
     try {
-      await adminUpdate({ categoryId: id, name: current.name, slug: current.slug, isActive: !current.isActive });
+      await adminUpdate({
+        categoryId: id,
+        name: current.name,
+        slug: current.slug,
+        isActive: !current.isActive,
+      });
       toast.success(current.isActive ? "Category deactivated" : "Category activated");
     } catch {
       toast.error("Failed to update category");
@@ -68,14 +73,14 @@ export default function AdminCategoriesPage() {
           icon={<Tag className="h-10 w-10" />}
         />
       ) : (
-        <div className="rounded-lg border">
+        <div className="overflow-x-auto rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Slug</TableHead>
                 <TableHead>Description</TableHead>
-                <TableHead>Sort</TableHead>
+                <TableHead className="text-center">Sort</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -85,16 +90,20 @@ export default function AdminCategoriesPage() {
               {categories.map((cat) => (
                 <TableRow key={cat._id}>
                   <TableCell className="font-medium">{cat.name}</TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">{cat.slug}</TableCell>
+                  <TableCell className="font-mono text-xs text-muted-foreground">
+                    {cat.slug}
+                  </TableCell>
                   <TableCell className="max-w-xs truncate text-sm text-muted-foreground">
                     {cat.description ?? "—"}
                   </TableCell>
-                  <TableCell>{cat.sortOrder ?? "—"}</TableCell>
+                  <TableCell className="text-center text-sm text-muted-foreground">
+                    {cat.sortOrder ?? "—"}
+                  </TableCell>
                   <TableCell>
                     <ActiveBadge isActive={cat.isActive} />
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {fmtDate(cat.createdAt)}
+                    {formatDate(cat.createdAt)}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">

@@ -27,6 +27,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { OrderStatusBadge, PaymentStatusBadge } from "@/components/admin/status-badge";
+import { formatCurrency, formatDateTime } from "@/lib/format";
 
 const ORDER_STATUSES = [
   { value: "placed", label: "Placed" },
@@ -38,19 +39,8 @@ const ORDER_STATUSES = [
 ] as const;
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
-  pay_later: "Pay on Delivery",
-  razorpay: "Razorpay",
+  pay_later: "Pay Later",
 };
-
-function fmtDateTime(ts: number) {
-  return new Date(ts).toLocaleString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 export default function AdminOrderDetailPage({
   params,
@@ -135,9 +125,9 @@ export default function AdminOrderDetailPage({
           <div>
             <h1 className="font-mono text-2xl font-bold">{order.orderNumber}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Placed on {fmtDateTime(order.createdAt)}
+              Placed on {formatDateTime(order.createdAt)}
               {order.updatedAt !== order.createdAt && (
-                <> · Updated {fmtDateTime(order.updatedAt)}</>
+                <> · Updated {formatDateTime(order.updatedAt)}</>
               )}
             </p>
           </div>
@@ -194,10 +184,10 @@ export default function AdminOrderDetailPage({
                     </TableCell>
                     <TableCell className="text-center">{item.quantity}</TableCell>
                     <TableCell className="text-right">
-                      ₹{(item.priceSnapshot / 100).toFixed(2)}
+                      {formatCurrency(item.priceSnapshot)}
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      ₹{(item.lineTotal / 100).toFixed(2)}
+                      {formatCurrency(item.lineTotal)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -208,20 +198,18 @@ export default function AdminOrderDetailPage({
             <div className="space-y-2 border-t p-4">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span>₹{(order.subtotal / 100).toFixed(2)}</span>
+                <span>{formatCurrency(order.subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Delivery</span>
-                <span className="text-green-600">
-                  {order.deliveryFee === 0
-                    ? "Free"
-                    : `₹${(order.deliveryFee / 100).toFixed(2)}`}
+                <span className="font-medium text-green-600">
+                  {order.deliveryFee === 0 ? "Free" : formatCurrency(order.deliveryFee)}
                 </span>
               </div>
               <Separator />
               <div className="flex justify-between font-bold">
                 <span>Total</span>
-                <span>₹{(order.total / 100).toFixed(2)}</span>
+                <span>{formatCurrency(order.total)}</span>
               </div>
             </div>
           </div>
@@ -292,9 +280,7 @@ export default function AdminOrderDetailPage({
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Amount</span>
-                <span className="font-medium">
-                  ₹{(order.total / 100).toFixed(2)}
-                </span>
+                <span className="font-medium">{formatCurrency(order.total)}</span>
               </div>
             </div>
           </div>

@@ -8,11 +8,19 @@ import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useCartStore } from "@/store/cart-store";
-import { Package, MapPin, ArrowLeft, ShoppingBag } from "lucide-react";
+import {
+  Package,
+  MapPin,
+  ArrowLeft,
+  ShoppingBag,
+  Banknote,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { formatCurrency } from "@/lib/format";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -79,12 +87,12 @@ export default function CheckoutPage() {
 
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Left – order items */}
-        <div className="lg:col-span-2 space-y-4">
-          <h2 className="font-semibold text-lg">
+        <div className="space-y-4 lg:col-span-2">
+          <h2 className="text-lg font-semibold">
             Your items ({totalItems})
           </h2>
 
-          <div className="rounded-lg border divide-y">
+          <div className="divide-y rounded-lg border">
             {items.map((item) => (
               <div key={item.productId} className="flex items-center gap-4 p-4">
                 <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted">
@@ -108,10 +116,10 @@ export default function CheckoutPage() {
                 </div>
                 <div className="shrink-0 text-right">
                   <p className="text-sm text-muted-foreground">
-                    {item.quantity} × ₹{(item.price / 100).toFixed(2)}
+                    {item.quantity} × {formatCurrency(item.price)}
                   </p>
                   <p className="font-semibold">
-                    ₹{((item.price * item.quantity) / 100).toFixed(2)}
+                    {formatCurrency(item.price * item.quantity)}
                   </p>
                 </div>
               </div>
@@ -122,31 +130,39 @@ export default function CheckoutPage() {
         {/* Right – summary + address + action */}
         <div className="space-y-5">
           {/* Order summary */}
-          <div className="rounded-lg border p-5 space-y-3">
+          <div className="space-y-3 rounded-lg border p-5">
             <h2 className="font-semibold">Order summary</h2>
             <Separator />
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">
                 Subtotal ({totalItems} item{totalItems !== 1 ? "s" : ""})
               </span>
-              <span>₹{(subtotal / 100).toFixed(2)}</span>
+              <span>{formatCurrency(subtotal)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Delivery</span>
-              <span className="text-green-600 font-medium">Free</span>
+              <span className="font-medium text-green-600">Free</span>
             </div>
             <Separator />
-            <div className="flex justify-between font-bold">
+            <div className="flex justify-between font-bold text-lg">
               <span>Total</span>
-              <span>₹{(total / 100).toFixed(2)}</span>
+              <span>{formatCurrency(total)}</span>
             </div>
           </div>
 
           {/* Delivery address */}
-          <div className="rounded-lg border p-5 space-y-3">
+          <div className="space-y-3 rounded-lg border p-5">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold">Delivery address</h2>
-              <Button variant="ghost" size="sm" asChild className="h-auto p-0 text-sm">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+                <h2 className="font-semibold">Delivery address</h2>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="h-auto p-0 text-sm"
+              >
                 <Link href="/addresses">
                   {defaultAddress ? "Change" : "Add"}
                 </Link>
@@ -167,7 +183,7 @@ export default function CheckoutPage() {
                 </Button>
               </div>
             ) : (
-              <div className="text-sm space-y-0.5">
+              <address className="not-italic text-sm space-y-0.5">
                 <p className="font-medium">{defaultAddress.name}</p>
                 <p className="text-muted-foreground">{defaultAddress.phone}</p>
                 <p className="text-muted-foreground">
@@ -180,10 +196,25 @@ export default function CheckoutPage() {
                   </p>
                 )}
                 <p className="text-muted-foreground">
-                  {defaultAddress.city}, {defaultAddress.state} — {defaultAddress.pincode}
+                  {defaultAddress.city}, {defaultAddress.state} —{" "}
+                  {defaultAddress.pincode}
                 </p>
-              </div>
+              </address>
             )}
+          </div>
+
+          {/* Payment method note */}
+          <div className="flex items-start gap-3 rounded-lg border bg-muted/40 p-4">
+            <Banknote className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+            <div className="text-sm">
+              <p className="font-medium">Pay Later</p>
+              <p className="text-muted-foreground">
+                Payment will be collected manually at or after delivery.
+              </p>
+            </div>
+            <Badge variant="secondary" className="ml-auto shrink-0 text-xs">
+              Pay Later
+            </Badge>
           </div>
 
           {/* Place order */}
@@ -199,7 +230,7 @@ export default function CheckoutPage() {
 
           {defaultAddress === null && (
             <p className="text-center text-xs text-muted-foreground">
-              Add a delivery address to place your order.
+              Add a delivery address to continue.
             </p>
           )}
         </div>

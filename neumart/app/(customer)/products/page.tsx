@@ -7,6 +7,49 @@ import { api } from "@/convex/_generated/api";
 import { ProductCard } from "@/components/products/product-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Package, Search } from "lucide-react";
+
+function CategoryChips({
+  categories,
+  category,
+  search,
+  onSelect,
+}: {
+  categories: Array<{ _id: string; name: string; slug: string }> | undefined;
+  category: string;
+  search: string;
+  onSelect: (slug: string) => void;
+}) {
+  return (
+    <div
+      className="mb-6 flex flex-wrap gap-2"
+      role="group"
+      aria-label="Filter by category"
+    >
+      <Button
+        variant={!category && !search ? "default" : "outline"}
+        size="sm"
+        onClick={() => onSelect("")}
+      >
+        All
+      </Button>
+      {categories === undefined
+        ? Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-8 w-20 rounded-md" />
+          ))
+        : categories.map((cat) => (
+            <Button
+              key={cat._id}
+              variant={category === cat.slug ? "default" : "outline"}
+              size="sm"
+              onClick={() => onSelect(cat.slug)}
+            >
+              {cat.name}
+            </Button>
+          ))}
+    </div>
+  );
+}
 
 function ProductsContent() {
   const searchParams = useSearchParams();
@@ -39,57 +82,69 @@ function ProductsContent() {
     router.push("/products");
   }
 
+  const selectedCategoryName = categories?.find((c) => c.slug === category)?.name;
+
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
-      {/* Category chips */}
-      <div className="mb-6 flex flex-wrap gap-2">
-        <Button
-          variant={!category && !search ? "default" : "outline"}
-          size="sm"
-          onClick={() => setCategory("")}
-        >
-          All
-        </Button>
-        {categories === undefined
-          ? Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-8 w-20 rounded-md" />
-            ))
-          : categories.map((cat) => (
-              <Button
-                key={cat._id}
-                variant={category === cat.slug ? "default" : "outline"}
-                size="sm"
-                onClick={() => setCategory(cat.slug)}
-              >
-                {cat.name}
-              </Button>
-            ))}
-      </div>
+      <CategoryChips
+        categories={categories}
+        category={category}
+        search={search}
+        onSelect={setCategory}
+      />
 
-      {/* Search context */}
-      {search && (
-        <p className="mb-4 text-sm text-muted-foreground">
-          Results for &ldquo;{search}&rdquo; &mdash;{" "}
-          <button onClick={clearSearch} className="underline hover:text-foreground">
-            clear
+      {/* Active filter context */}
+      {(search || selectedCategoryName) && (
+        <div className="mb-5 flex items-center gap-2 text-sm text-muted-foreground">
+          {search ? (
+            <>
+              <Search className="h-4 w-4 shrink-0" />
+              <span>
+                Results for <span className="font-medium text-foreground">&ldquo;{search}&rdquo;</span>
+                {products !== undefined && (
+                  <span className="ml-1">— {products.length} found</span>
+                )}
+              </span>
+            </>
+          ) : (
+            <span>
+              Showing <span className="font-medium text-foreground">{selectedCategoryName}</span>
+              {products !== undefined && (
+                <span className="ml-1">— {products.length} product{products.length !== 1 ? "s" : ""}</span>
+              )}
+            </span>
+          )}
+          <button
+            onClick={clearSearch}
+            className="ml-1 text-xs underline hover:text-foreground"
+          >
+            Clear
           </button>
-        </p>
+        </div>
       )}
 
       {/* Product grid */}
       {products === undefined ? (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="h-64 rounded-lg" />
+            <Skeleton key={i} className="h-72 rounded-lg" />
           ))}
         </div>
       ) : products.length === 0 ? (
-        <div className="py-16 text-center">
-          <p className="text-muted-foreground">
-            {search ? `No products found for "${search}".` : "No products available."}
+        <div className="flex flex-col items-center py-20 text-center">
+          <div className="mb-4 rounded-full bg-muted p-4">
+            <Package className="h-10 w-10 text-muted-foreground" />
+          </div>
+          <h2 className="mb-1 text-lg font-semibold">
+            {search ? "No products found" : "No products available"}
+          </h2>
+          <p className="mb-6 max-w-sm text-sm text-muted-foreground">
+            {search
+              ? `We couldn't find anything for "${search}". Try a different search term.`
+              : "Check back soon — products will appear here once added."}
           </p>
-          {search && (
-            <Button variant="outline" className="mt-4" onClick={clearSearch}>
+          {(search || category) && (
+            <Button variant="outline" onClick={clearSearch}>
               Browse all products
             </Button>
           )}
@@ -111,13 +166,13 @@ export default function ProductsPage() {
       fallback={
         <div className="container mx-auto max-w-7xl px-4 py-8">
           <div className="mb-6 flex flex-wrap gap-2">
-            {Array.from({ length: 4 }).map((_, i) => (
+            {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-8 w-20 rounded-md" />
             ))}
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} className="h-64 rounded-lg" />
+              <Skeleton key={i} className="h-72 rounded-lg" />
             ))}
           </div>
         </div>

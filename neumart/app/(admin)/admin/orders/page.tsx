@@ -26,14 +26,7 @@ import {
 import { PageHeader } from "@/components/admin/page-header";
 import { EmptyState } from "@/components/admin/empty-state";
 import { OrderStatusBadge, PaymentStatusBadge } from "@/components/admin/status-badge";
-
-function fmtDate(ts: number) {
-  return new Date(ts).toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-}
+import { formatCurrency, formatDate } from "@/lib/format";
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
   pay_later: "Pay Later",
@@ -89,7 +82,7 @@ export default function AdminOrdersPage() {
           value={statusFilter}
           onValueChange={(v) => setStatusFilter(v as OrderStatus | "all")}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-45">
             <SelectValue placeholder="All statuses" />
           </SelectTrigger>
           <SelectContent>
@@ -107,7 +100,7 @@ export default function AdminOrdersPage() {
           value={paymentFilter}
           onValueChange={(v) => setPaymentFilter(v as PaymentStatus | "all")}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-45">
             <SelectValue placeholder="All payments" />
           </SelectTrigger>
           <SelectContent>
@@ -174,9 +167,9 @@ export default function AdminOrdersPage() {
                     {order.orderNumber}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {fmtDate(order.createdAt)}
+                    {formatDate(order.createdAt)}
                   </TableCell>
-                  <TableCell className="max-w-[180px]">
+                  <TableCell className="max-w-45">
                     {order.customer ? (
                       <div className="min-w-0">
                         {order.customer.name && (
@@ -196,7 +189,7 @@ export default function AdminOrdersPage() {
                     {order.itemCount}
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    ₹{(order.total / 100).toFixed(2)}
+                    {formatCurrency(order.total)}
                   </TableCell>
                   <TableCell>
                     <OrderStatusBadge status={order.status} />

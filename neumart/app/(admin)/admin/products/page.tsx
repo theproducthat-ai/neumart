@@ -8,13 +8,16 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
 import { Plus, Pencil, Package } from "lucide-react";
-
-function fmtDate(ts: number) {
-  return new Date(ts).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-}
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -26,6 +29,7 @@ import {
 import { PageHeader } from "@/components/admin/page-header";
 import { ActiveBadge, FeaturedBadge, StockBadge } from "@/components/admin/status-badge";
 import { EmptyState } from "@/components/admin/empty-state";
+import { formatCurrency, formatDate } from "@/lib/format";
 
 export default function AdminProductsPage() {
   const { isAuthenticated } = useConvexAuth();
@@ -34,22 +38,33 @@ export default function AdminProductsPage() {
   const adminUpdate = useMutation(api.products.adminUpdate);
 
   const [search, setSearch] = useState("");
-  const [filterCategory, setFilterCategory] = useState("");
-  const [filterStatus, setFilterStatus] = useState<"" | "active" | "inactive">("");
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive">("all");
 
   const categoryMap = new Map(categories?.map((c) => [c._id, c.name]) ?? []);
 
   const filtered = products?.filter((p) => {
     if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
-    if (filterCategory && p.categoryId !== filterCategory) return false;
+    if (filterCategory !== "all" && p.categoryId !== filterCategory) return false;
     if (filterStatus === "active" && !p.isActive) return false;
     if (filterStatus === "inactive" && p.isActive) return false;
     return true;
   });
 
+  const hasFilters = search || filterCategory !== "all" || filterStatus !== "all";
+
   async function toggleActive(
     id: Id<"products">,
-    current: { name: string; slug: string; categoryId: Id<"categories">; price: number; unit: string; stockQuantity: number; isActive: boolean; isFeatured?: boolean }
+    current: {
+      name: string;
+      slug: string;
+      categoryId: Id<"categories">;
+      price: number;
+      unit: string;
+      stockQuantity: number;
+      isActive: boolean;
+      isFeatured?: boolean;
+    }
   ) {
     try {
       await adminUpdate({
@@ -85,32 +100,56 @@ export default function AdminProductsPage() {
       />
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Input
           placeholder="Search by name…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-xs"
+          aria-label="Search products"
         />
-        <select
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-          className="h-9 rounded-md border bg-background px-3 text-sm"
-        >
-          <option value="">All categories</option>
-          {categories?.map((c) => (
-            <option key={c._id} value={c._id}>{c.name}</option>
-          ))}
-        </select>
-        <select
+
+        <Select value={filterCategory} onValueChange={setFilterCategory}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All categories</SelectItem>
+            {categories?.map((c) => (
+              <SelectItem key={c._id} value={c._id}>
+                {c.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
           value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value as "" | "active" | "inactive")}
-          className="h-9 rounded-md border bg-background px-3 text-sm"
+          onValueChange={(v) => setFilterStatus(v as "all" | "active" | "inactive")}
         >
-          <option value="">All statuses</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="All statuses" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {hasFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setSearch("");
+              setFilterCategory("all");
+              setFilterStatus("all");
+            }}
+          >
+            Clear filters
+          </Button>
+        )}
       </div>
 
       {products === undefined ? (
@@ -128,9 +167,25 @@ export default function AdminProductsPage() {
           icon={<Package className="h-10 w-10" />}
         />
       ) : filtered?.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted-foreground">No products match your filters.</p>
+        <div className="py-12 text-center">
+          <p className="text-sm text-muted-foreground">
+            No products match your filters.
+          </p>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mt-2"
+            onClick={() => {
+              setSearch("");
+              setFilterCategory("all");
+              setFilterStatus("all");
+            }}
+          >
+            Clear filters
+          </Button>
+        </div>
       ) : (
-        <div className="rounded-lg border">
+        <div className="overflow-x-auto rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -158,7 +213,9 @@ export default function AdminProductsPage() {
                             sizes="40px"
                           />
                         ) : (
-                          <Package className="m-auto h-5 w-5 translate-y-2.5 text-muted-foreground" />
+                          <div className="flex h-full items-center justify-center">
+                            <Package className="h-4 w-4 text-muted-foreground" />
+                          </div>
                         )}
                       </div>
                       <div>
@@ -167,11 +224,11 @@ export default function AdminProductsPage() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm">
+                  <TableCell className="text-sm text-muted-foreground">
                     {categoryMap.get(product.categoryId) ?? "—"}
                   </TableCell>
-                  <TableCell className="text-sm">
-                    ₹{(product.price / 100).toFixed(2)}
+                  <TableCell className="text-sm font-medium">
+                    {formatCurrency(product.price)}
                   </TableCell>
                   <TableCell>
                     <StockBadge qty={product.stockQuantity} />
@@ -183,7 +240,7 @@ export default function AdminProductsPage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {fmtDate(product.createdAt)}
+                    {formatDate(product.createdAt)}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">

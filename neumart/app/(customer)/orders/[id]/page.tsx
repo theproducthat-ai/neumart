@@ -13,11 +13,13 @@ import {
   MapPin,
   ArrowLeft,
   ShoppingBag,
+  Banknote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatCurrency, formatDateTime } from "@/lib/format";
 
 const ORDER_STATUS_LABELS: Record<string, string> = {
   placed: "Order Placed",
@@ -40,19 +42,26 @@ const ORDER_STATUS_VARIANTS: Record<
   cancelled: "destructive",
 };
 
-const PAYMENT_METHOD_LABELS: Record<string, string> = {
-  pay_later: "Pay on Delivery",
+const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  pending: "Pay Later",
+  paid: "Paid",
+  failed: "Failed",
+  refunded: "Refunded",
 };
 
-function formatDate(ts: number) {
-  return new Date(ts).toLocaleString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+const PAYMENT_STATUS_VARIANTS: Record<
+  string,
+  "default" | "secondary" | "outline" | "destructive"
+> = {
+  pending: "secondary",
+  paid: "default",
+  failed: "destructive",
+  refunded: "outline",
+};
+
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  pay_later: "Pay Later",
+};
 
 function OrderDetailSkeleton() {
   return (
@@ -80,7 +89,7 @@ function OrderDetailContent({ id }: { id: string }) {
 
   if (detail === null) {
     return (
-      <div className="container mx-auto max-w-3xl px-4 py-16 text-center">
+      <div className="container mx-auto max-w-3xl px-4 py-20 text-center">
         <ShoppingBag className="mx-auto mb-4 h-16 w-16 text-muted-foreground" />
         <h1 className="mb-2 text-2xl font-bold">Order not found</h1>
         <p className="mb-6 text-muted-foreground">
@@ -104,7 +113,7 @@ function OrderDetailContent({ id }: { id: string }) {
         </Link>
       </Button>
 
-      {/* Success banner — shown only when redirected from checkout */}
+      {/* Success banner */}
       {justPlaced && (
         <div className="mb-6 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950/30">
           <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600 dark:text-green-400" />
@@ -113,7 +122,8 @@ function OrderDetailContent({ id }: { id: string }) {
               Your order has been placed!
             </p>
             <p className="mt-0.5 text-sm text-green-700 dark:text-green-400">
-              We&apos;ve received your order and will confirm it shortly.
+              We&apos;ve received your order and will confirm it shortly. Payment
+              will be collected at or after delivery.
             </p>
           </div>
         </div>
@@ -124,7 +134,7 @@ function OrderDetailContent({ id }: { id: string }) {
         <div>
           <h1 className="font-mono text-xl font-bold">{order.orderNumber}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Placed on {formatDate(order.createdAt)}
+            Placed on {formatDateTime(order.createdAt)}
           </p>
         </div>
         <Badge
@@ -138,7 +148,9 @@ function OrderDetailContent({ id }: { id: string }) {
       {/* Items */}
       <div className="mb-6 rounded-lg border">
         <div className="p-4 pb-0">
-          <h2 className="font-semibold">Items</h2>
+          <h2 className="font-semibold">
+            Items ({order.itemCount})
+          </h2>
         </div>
         <div className="divide-y">
           {items.map((item) => (
@@ -164,11 +176,9 @@ function OrderDetailContent({ id }: { id: string }) {
               </div>
               <div className="shrink-0 text-right">
                 <p className="text-sm text-muted-foreground">
-                  {item.quantity} × ₹{(item.priceSnapshot / 100).toFixed(2)}
+                  {item.quantity} × {formatCurrency(item.priceSnapshot)}
                 </p>
-                <p className="font-semibold">
-                  ₹{(item.lineTotal / 100).toFixed(2)}
-                </p>
+                <p className="font-semibold">{formatCurrency(item.lineTotal)}</p>
               </div>
             </div>
           ))}
@@ -178,32 +188,37 @@ function OrderDetailContent({ id }: { id: string }) {
         <div className="space-y-2 border-t p-4">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Subtotal</span>
-            <span>₹{(order.subtotal / 100).toFixed(2)}</span>
+            <span>{formatCurrency(order.subtotal)}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Delivery</span>
-            <span className="text-green-600">
-              {order.deliveryFee === 0 ? "Free" : `₹${(order.deliveryFee / 100).toFixed(2)}`}
+            <span className="font-medium text-green-600">
+              {order.deliveryFee === 0 ? "Free" : formatCurrency(order.deliveryFee)}
             </span>
           </div>
           <Separator />
-          <div className="flex justify-between font-bold">
+          <div className="flex justify-between text-base font-bold">
             <span>Total</span>
-            <span>₹{(order.total / 100).toFixed(2)}</span>
+            <span>{formatCurrency(order.total)}</span>
           </div>
         </div>
       </div>
 
       {/* Payment info */}
       <div className="mb-6 rounded-lg border p-4">
-        <h2 className="mb-3 font-semibold">Payment</h2>
+        <div className="mb-3 flex items-center gap-2">
+          <Banknote className="h-4 w-4 text-muted-foreground" />
+          <h2 className="font-semibold">Payment</h2>
+        </div>
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Method</span>
           <span>{PAYMENT_METHOD_LABELS[order.paymentMethod] ?? order.paymentMethod}</span>
         </div>
-        <div className="mt-1 flex justify-between text-sm">
+        <div className="mt-2 flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Status</span>
-          <span className="capitalize">{order.paymentStatus}</span>
+          <Badge variant={PAYMENT_STATUS_VARIANTS[order.paymentStatus] ?? "outline"}>
+            {PAYMENT_STATUS_LABELS[order.paymentStatus] ?? order.paymentStatus}
+          </Badge>
         </div>
       </div>
 
@@ -214,7 +229,7 @@ function OrderDetailContent({ id }: { id: string }) {
             <MapPin className="h-4 w-4 text-muted-foreground" />
             <h2 className="font-semibold">Delivery address</h2>
           </div>
-          <div className="text-sm space-y-0.5 text-muted-foreground">
+          <address className="not-italic space-y-0.5 text-sm text-muted-foreground">
             <p className="font-medium text-foreground">{address.name}</p>
             <p>{address.phone}</p>
             <p>
@@ -225,7 +240,7 @@ function OrderDetailContent({ id }: { id: string }) {
             <p>
               {address.city}, {address.state} — {address.pincode}
             </p>
-          </div>
+          </address>
         </div>
       )}
     </div>
