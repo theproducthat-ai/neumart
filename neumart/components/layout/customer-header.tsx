@@ -3,11 +3,26 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Heart, MapPin, ShoppingCart, Search, ClipboardList } from "lucide-react";
+import {
+  Heart,
+  MapPin,
+  ShoppingCart,
+  Search,
+  ClipboardList,
+  Menu,
+  Store,
+} from "lucide-react";
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useCartCount } from "@/store/cart-store";
 import { cn } from "@/lib/utils";
 
@@ -135,6 +150,45 @@ export function CustomerHeader() {
               </Badge>
             )}
           </div>
+
+          {/* Mobile "More" menu — hidden on sm+ */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="sm:hidden"
+                aria-label="More navigation options"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem asChild>
+                <Link href="/products" className="flex items-center gap-2">
+                  <Store className="h-4 w-4" />
+                  Shop
+                </Link>
+              </DropdownMenuItem>
+              {isSignedIn && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/addresses" className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      Addresses
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/orders" className="flex items-center gap-2">
+                      <ClipboardList className="h-4 w-4" />
+                      Orders
+                    </Link>
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {isSignedIn ? (
             <UserButton />

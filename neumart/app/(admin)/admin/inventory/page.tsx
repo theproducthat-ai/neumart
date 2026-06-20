@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -64,12 +65,19 @@ function StatCard({
   );
 }
 
-export default function InventoryPage() {
+function InventoryContent() {
   const { isAuthenticated } = useConvexAuth();
+  const searchParams = useSearchParams();
 
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState<string>("all");
-  const [stockStatus, setStockStatus] = useState<StockStatusFilter>("all");
+  const [stockStatus, setStockStatus] = useState<StockStatusFilter>(() => {
+    const param = searchParams.get("stock");
+    if (param === "low_stock" || param === "out_of_stock" || param === "in_stock") {
+      return param;
+    }
+    return "all";
+  });
 
   const [adjustTarget, setAdjustTarget] = useState<{
     productId: Id<"products">;
@@ -257,5 +265,13 @@ export default function InventoryPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function InventoryPage() {
+  return (
+    <Suspense>
+      <InventoryContent />
+    </Suspense>
   );
 }
