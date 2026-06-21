@@ -15,6 +15,9 @@ out/
 # pnpm
 .pnpm-debug.log*
 
+# claude code
+.claude/
+
 # misc
 .DS_Store
 *.pem
