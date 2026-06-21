@@ -162,4 +162,42 @@ export default defineSchema({
   })
     .index("by_orderId", ["orderId"])
     .index("by_userId", ["userId"]),
+
+  deliveryTasks: defineTable({
+    orderId: v.id("orders"),
+    userId: v.id("users"),
+    addressId: v.id("addresses"),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("assigned"),
+      v.literal("picked_up"),
+      v.literal("out_for_delivery"),
+      v.literal("delivered"),
+      v.literal("failed"),
+      v.literal("cancelled")
+    ),
+    assignedTo: v.optional(v.string()),
+    assignedContact: v.optional(v.string()),
+    assignedAt: v.optional(v.number()),
+    pickedUpAt: v.optional(v.number()),
+    outForDeliveryAt: v.optional(v.number()),
+    deliveredAt: v.optional(v.number()),
+    failedAt: v.optional(v.number()),
+    failedReasonCode: v.optional(v.union(
+      v.literal("customer_unavailable"),
+      v.literal("wrong_address"),
+      v.literal("customer_refused"),
+      v.literal("delivery_person_unavailable"),
+      v.literal("order_damaged"),
+      v.literal("payment_issue"),
+      v.literal("unable_to_contact"),
+      v.literal("other")
+    )),
+    failedReasonNotes: v.optional(v.string()),
+    cancelledAt: v.optional(v.number()),
+    cancelledReason: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    updatedBy: v.id("users"),
+  }).index("by_orderId", ["orderId"]),
 });

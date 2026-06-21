@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { DeliveryStatusSection } from "@/components/delivery/DeliveryStatusSection";
 import {
   CheckCircle2,
   Package,
@@ -243,6 +244,8 @@ function OrderDetailContent({ id }: { id: string }) {
           </address>
         </div>
       )}
+
+      <DeliveryStatusSection orderId={id as Id<"orders">} />
     </div>
   );
 }

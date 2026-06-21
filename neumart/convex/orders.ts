@@ -198,6 +198,17 @@ export const placeOrderWithoutPayment = mutation({
       })
     );
 
+    // 9. Create delivery task — atomic with order placement
+    await ctx.db.insert("deliveryTasks", {
+      orderId,
+      userId: user._id,
+      addressId,
+      status: "pending",
+      createdAt: now,
+      updatedAt: now,
+      updatedBy: user._id,
+    });
+
     return orderId;
   },
 });

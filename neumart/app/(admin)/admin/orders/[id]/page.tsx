@@ -7,6 +7,7 @@ import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { ArrowLeft, Package, MapPin, User, CreditCard } from "lucide-react";
+import { AdminDeliverySection } from "@/components/delivery/AdminDeliverySection";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -315,6 +316,8 @@ export default function AdminOrderDetailPage({
               </Button>
             </div>
           </div>
+
+          <AdminDeliverySection orderId={order._id} />
         </div>
       </div>
     </div>
