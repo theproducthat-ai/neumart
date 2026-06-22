@@ -95,6 +95,7 @@ Update both files whenever a request changes status.
 | REQ ID | PRD ID | Dev Plan | Title | Next Action |
 |---|---|---|---|---|
 | REQ-0001 | PRD-0001 | DEVPLAN-0001 | Delivery Module — MVP | Run `npx convex deploy` → QA per DEVPLAN-0001 checklist |
+| REQ-0002 | PRD-0002 | DEVPLAN-0002 | Image Carousel at Top of Product Listing Page | Product owner UAT sign-off (UAT-0001) → release |
 
 ---
 

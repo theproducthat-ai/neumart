@@ -8,13 +8,13 @@ This file is the single source of truth for all tracked object IDs across the Pr
 
 | Type | Purpose | Last Used ID | Next ID | Notes |
 |---|---|---|---|---|
-| REQ | Feature / change / bug requests | 0001 | 0002 | All incoming requests |
+| REQ | Feature / change / bug requests | 0002 | 0003 | All incoming requests |
 | EVAL | Evaluation documents | 0001 | 0002 | One per request under evaluation |
-| PRD | Product requirement documents | 0001 | 0002 | One per approved feature |
-| US | User stories | 0008 | 0009 | Multiple per PRD |
-| DEVPLAN | Development plans | 0001 | 0002 | One per PRD or story set |
-| QA | QA test records | 0000 | 0001 | One per release or feature |
-| UAT | UAT sign-off records | 0000 | 0001 | One per release |
+| PRD | Product requirement documents | 0002 | 0003 | One per approved feature |
+| US | User stories | 0014 | 0015 | Multiple per PRD |
+| DEVPLAN | Development plans | 0002 | 0003 | One per PRD or story set |
+| QA | QA test records | 0001 | 0002 | One per release or feature |
+| UAT | UAT sign-off records | 0001 | 0002 | One per release |
 | REL | Release records | 0000 | 0001 | One per production release |
 | SCR-CUS | Customer-facing screen registry | 0010 | 0011 | Storefront screens — 0001 to 0010 assigned in Phase 2 Product OS setup |
 | SCR-ADM | Admin screen registry | 0011 | 0012 | Admin panel screens — 0001 to 0011 assigned in Phase 2 Product OS setup |

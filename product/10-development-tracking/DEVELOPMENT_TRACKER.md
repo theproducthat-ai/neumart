@@ -12,7 +12,9 @@ This file tracks all active and planned development work. Each entry links to a 
 
 ## Development Planned (Ready to Build)
 
-*No development plans waiting to be executed.*
+| DEVPLAN ID | Request ID | PRD ID | Title | Stories | Next Action |
+|---|---|---|---|---|---|
+| DEVPLAN-0002 | REQ-0002 | PRD-0002 | Promotional Banner Carousel | US-0009 → US-0014 | Execute coding prompt |
 
 ---
 

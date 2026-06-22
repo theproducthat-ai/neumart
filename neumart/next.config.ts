@@ -2,6 +2,14 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
+  },
   webpack: (config) => {
     // pnpm doesn't symlink zod as a peer for @hookform/resolvers in its
     // virtual store, so webpack can't resolve "zod/v4/core" from that path.

@@ -8,6 +8,8 @@ import { ProductCard } from "@/components/products/product-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Package, Search } from "lucide-react";
+import { BannerCarousel } from "@/components/banners/banner-carousel";
+import { banners } from "@/lib/banners.config";
 
 function CategoryChips({
   categories,
@@ -161,24 +163,33 @@ function ProductsContent() {
 }
 
 export default function ProductsPage() {
+  const activeBanners = banners.filter((b) => b.isActive);
+
   return (
-    <Suspense
-      fallback={
-        <div className="container mx-auto max-w-7xl px-4 py-8">
-          <div className="mb-6 flex flex-wrap gap-2">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Skeleton key={i} className="h-8 w-20 rounded-md" />
-            ))}
-          </div>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} className="h-72 rounded-lg" />
-            ))}
-          </div>
+    <>
+      {activeBanners.length > 0 && (
+        <div className="container mx-auto max-w-7xl px-4 pt-6 pb-2">
+          <BannerCarousel banners={activeBanners} />
         </div>
-      }
-    >
-      <ProductsContent />
-    </Suspense>
+      )}
+      <Suspense
+        fallback={
+          <div className="container mx-auto max-w-7xl px-4 py-8">
+            <div className="mb-6 flex flex-wrap gap-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-8 w-20 rounded-md" />
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Skeleton key={i} className="h-72 rounded-lg" />
+              ))}
+            </div>
+          </div>
+        }
+      >
+        <ProductsContent />
+      </Suspense>
+    </>
   );
 }
