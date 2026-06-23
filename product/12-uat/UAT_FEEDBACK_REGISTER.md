@@ -28,7 +28,8 @@ Central log of all feedback, defects, and observations raised during UAT. Mainta
 
 | ID | UAT Run | Type | Title | Description | Status | Resolution |
 |---|---|---|---|---|---|---|
-| UFB-0001 | UAT-NNNN | Defect / Enhancement / Observation / Question | *(title)* | *(description)* | Open / Resolved / Accepted | *(resolution or "pending")* |
+| UFB-0001 | UAT-0001 | Enhancement | Replace placeholder banner images | Banner images are placeholder; production promotional images to be configured before go-live. No code change required — update `lib/banners.config.ts`. | Pre-release condition | Product Owner to supply images before go-live |
+| UFB-0002 | UAT-0001 | Observation | Click-through destinations are placeholder | Banner click events are no-op in V1. Accepted as Known Limitation per PRD-0002 out-of-scope decision. | Accepted — Known Limitation | Deferred to future enhancement (see ENHANCEMENT_BACKLOG.md) |
 
 ---
 

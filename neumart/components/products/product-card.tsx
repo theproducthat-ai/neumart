@@ -94,6 +94,18 @@ export function ProductCard({ product }: ProductCardProps) {
               </span>
             </div>
           )}
+          {/* Favourite overlay */}
+          <button
+            onClick={(e) => { e.preventDefault(); handleToggleFavourite(); }}
+            aria-label={isFavourite ? "Remove from favourites" : "Add to favourites"}
+            className={`absolute right-2 top-2 z-10 rounded-full p-1.5 shadow-sm transition-colors ${
+              isFavourite
+                ? "bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/60 dark:text-rose-400"
+                : "bg-white/80 text-muted-foreground hover:bg-white hover:text-rose-500 dark:bg-background/70 dark:hover:bg-background"
+            }`}
+          >
+            <Heart className={`h-4 w-4 ${isFavourite ? "fill-current" : ""}`} />
+          </button>
         </div>
       </Link>
 
@@ -105,7 +117,7 @@ export function ProductCard({ product }: ProductCardProps) {
           </h3>
         </Link>
         <p className="text-xs text-muted-foreground">{product.unit}</p>
-        <div className="mt-auto flex items-end justify-between gap-1 pt-2">
+        <div className="flex items-center justify-between gap-1">
           <p className="text-base font-bold tracking-tight">
             {formatCurrency(product.price)}
           </p>
@@ -114,7 +126,7 @@ export function ProductCard({ product }: ProductCardProps) {
       </CardContent>
 
       {/* Actions */}
-      <CardFooter className="gap-2 p-3 pt-0">
+      <CardFooter className="p-3 pt-0">
         <Button
           size="sm"
           className="flex-1"
@@ -124,21 +136,6 @@ export function ProductCard({ product }: ProductCardProps) {
         >
           <ShoppingCart className="mr-1.5 h-3.5 w-3.5" />
           {canAddToCart ? "Add to cart" : "Unavailable"}
-        </Button>
-        <Button
-          size="icon"
-          variant="outline"
-          className={`shrink-0 transition-colors ${
-            isFavourite
-              ? "border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-400"
-              : ""
-          }`}
-          onClick={handleToggleFavourite}
-          aria-label={isFavourite ? "Remove from favourites" : "Add to favourites"}
-        >
-          <Heart
-            className={`h-4 w-4 ${isFavourite ? "fill-current" : ""}`}
-          />
         </Button>
       </CardFooter>
     </Card>
