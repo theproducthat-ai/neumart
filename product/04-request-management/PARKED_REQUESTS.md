@@ -17,7 +17,7 @@ Requests parked intentionally for later consideration. Parked requests are not r
 
 | Request ID | Title | Reason Parked | Parked Date | Review Date | Conditions to Reopen | Notes |
 |---|---|---|---|---|---|---|
-| — | No parked requests | — | — | — | — | Product OS initialized 2026-06-21 |
+| REQ-0006 | Allergen and Dietary Tag Filtering on Product Listing | Depends on REQ-0005 — schema fields and catalogue data must exist first | 2026-06-23 | On REQ-0005 release | REQ-0005 Released AND meaningful portion of product catalogue has allergen/dietary data populated | Scoped out of REQ-0005 grilling. Array schema from REQ-0005 is already filter-ready. |
 
 ---
 

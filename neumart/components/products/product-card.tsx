@@ -123,6 +123,15 @@ export function ProductCard({ product }: ProductCardProps) {
           </p>
           <StockBadge qty={product.stockQuantity} />
         </div>
+        {(product.containsAllergens?.length ?? 0) > 0 ? (
+          <Badge variant="outline" className="w-fit border-amber-300 text-xs font-normal text-amber-700 dark:border-amber-700 dark:text-amber-400">
+            Contains allergens
+          </Badge>
+        ) : (product.mayContainAllergens?.length ?? 0) > 0 ? (
+          <Badge variant="outline" className="w-fit text-xs font-normal text-muted-foreground">
+            May contain allergens
+          </Badge>
+        ) : null}
       </CardContent>
 
       {/* Actions */}

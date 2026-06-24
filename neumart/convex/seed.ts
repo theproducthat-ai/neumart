@@ -707,3 +707,97 @@ export const seedDevelopmentData = mutation({
     };
   },
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ALLERGEN SEED — Patches existing products with allergen and ingredient data.
+// Run via: npx convex run seed:seedAllergenData
+// Safe to run multiple times — patch is idempotent.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ALLERGEN_DATA: Record<string, {
+  ingredients?: string;
+  containsAllergens?: string[];
+  mayContainAllergens?: string[];
+  dietaryTags?: string[];
+  allergenNotes?: string;
+}> = {
+  "white-sandwich-bread": {
+    ingredients: "Wheat flour, water, sugar, yeast, edible vegetable oil (palm), salt, soy flour, emulsifier (E472e), preservative (E282).",
+    containsAllergens: ["Wheat", "Gluten", "Soy"],
+    mayContainAllergens: ["Sesame", "Egg", "Milk"],
+    dietaryTags: ["Vegetarian"],
+    allergenNotes: "Produced in a facility that handles sesame, eggs and milk.",
+  },
+  "brown-bread": {
+    ingredients: "Whole wheat flour, water, sugar, yeast, wheat bran, edible vegetable oil (palm), salt, emulsifier (E472e), preservative (E282).",
+    containsAllergens: ["Wheat", "Gluten"],
+    mayContainAllergens: ["Soy", "Sesame"],
+    dietaryTags: ["Vegetarian"],
+  },
+  "butter-croissants": {
+    ingredients: "Refined wheat flour, butter (milk), sugar, eggs, yeast, salt, water.",
+    containsAllergens: ["Wheat", "Gluten", "Milk", "Egg"],
+    dietaryTags: ["Vegetarian"],
+    allergenNotes: "Contains real butter. Not suitable for those with dairy or egg allergies.",
+  },
+  "digestive-biscuits": {
+    ingredients: "Whole wheat flour, sugar, edible vegetable oil (palm), oatmeal, malt extract (wheat), raising agents (E500ii, E503ii), salt.",
+    containsAllergens: ["Wheat", "Gluten"],
+    mayContainAllergens: ["Milk", "Egg", "Soy", "Tree nuts"],
+    dietaryTags: ["Vegetarian"],
+  },
+  "fresh-paneer": {
+    ingredients: "Pasteurised whole cow's milk, food acid (acetic acid or citric acid).",
+    containsAllergens: ["Milk"],
+    dietaryTags: ["Vegetarian", "Jain-friendly", "Gluten-free"],
+    allergenNotes: "100% dairy. Not suitable for those with lactose intolerance or milk allergy.",
+  },
+  "amul-butter": {
+    ingredients: "Pasteurised cream (milk), common salt.",
+    containsAllergens: ["Milk"],
+    dietaryTags: ["Vegetarian", "Gluten-free"],
+  },
+  "salted-almonds": {
+    ingredients: "Almonds, refined sunflower oil, iodised salt.",
+    containsAllergens: ["Tree nuts"],
+    mayContainAllergens: ["Peanuts"],
+    dietaryTags: ["Vegetarian", "Vegan", "Gluten-free", "Dairy-free"],
+    allergenNotes: "Packed in a facility that also handles peanuts.",
+  },
+  "mixed-namkeen": {
+    ingredients: "Chickpea flour (besan), peanuts, edible vegetable oil (palm), rice flakes, wheat sev, salt, spices (turmeric, red chilli, coriander).",
+    containsAllergens: ["Peanuts", "Wheat", "Gluten"],
+    mayContainAllergens: ["Tree nuts", "Sesame", "Mustard"],
+    dietaryTags: ["Vegetarian", "Jain-friendly"],
+  },
+};
+
+export const seedAllergenData = mutation({
+  args: {},
+  handler: async (ctx) => {
+    let patched = 0;
+    let skipped = 0;
+
+    for (const [slug, allergenFields] of Object.entries(ALLERGEN_DATA)) {
+      const product = await ctx.db
+        .query("products")
+        .withIndex("by_slug", (q) => q.eq("slug", slug))
+        .unique();
+
+      if (!product) {
+        skipped++;
+        continue;
+      }
+
+      await ctx.db.patch(product._id, {
+        ...allergenFields,
+        updatedAt: Date.now(),
+      });
+      patched++;
+    }
+
+    return {
+      message: `Allergen seed complete. ${patched} products patched, ${skipped} slugs not found.`,
+    };
+  },
+});

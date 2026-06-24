@@ -9,7 +9,13 @@ export default defineSchema({
     phone: v.optional(v.string()),
     role: v.optional(v.string()), // "admin" | "customer"
     createdAt: v.number(),
-  }).index("by_tokenIdentifier", ["tokenIdentifier"]),
+    customerCode: v.optional(v.string()),
+    qrCodeId: v.optional(v.string()),
+    qrEnabled: v.optional(v.boolean()),
+    qrCreatedAt: v.optional(v.number()),
+  })
+    .index("by_tokenIdentifier", ["tokenIdentifier"])
+    .index("by_qr_code_id", ["qrCodeId"]),
 
   addresses: defineTable({
     userId: v.id("users"),
@@ -57,6 +63,11 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
     lastStockUpdatedAt: v.optional(v.number()),
+    ingredients: v.optional(v.string()),
+    containsAllergens: v.optional(v.array(v.string())),
+    mayContainAllergens: v.optional(v.array(v.string())),
+    dietaryTags: v.optional(v.array(v.string())),
+    allergenNotes: v.optional(v.string()),
   })
     .index("by_categoryId", ["categoryId"])
     .index("by_slug", ["slug"])

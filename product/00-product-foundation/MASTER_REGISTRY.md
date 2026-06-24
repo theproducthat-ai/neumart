@@ -8,15 +8,16 @@ This file is the single source of truth for all tracked object IDs across the Pr
 
 | Type | Purpose | Last Used ID | Next ID | Notes |
 |---|---|---|---|---|
-| REQ | Feature / change / bug requests | 0004 | 0005 | All incoming requests |
+| REQ | Feature / change / bug requests | 0008 | 0009 | All incoming requests |
+| IMPACT | Impact assessment documents | 0003 | 0004 | One per high-risk or schema-change request |
 | EVAL | Evaluation documents | 0001 | 0002 | One per request under evaluation |
-| PRD | Product requirement documents | 0002 | 0003 | One per approved feature |
-| US | User stories | 0014 | 0015 | Multiple per PRD |
-| DEVPLAN | Development plans | 0004 | 0005 | One per PRD or story set |
+| PRD | Product requirement documents | 0004 | 0005 | One per approved feature |
+| US | User stories | 0023 | 0024 | Multiple per PRD |
+| DEVPLAN | Development plans | 0007 | 0008 | One per PRD or story set |
 | QA | QA test records | 0002 | 0003 | One per release or feature |
 | UAT | UAT sign-off records | 0002 | 0003 | One per release |
-| REL | Release records | 0000 | 0001 | One per production release |
-| SCR-CUS | Customer-facing screen registry | 0010 | 0011 | Storefront screens — 0001 to 0010 assigned in Phase 2 Product OS setup |
+| REL | Release records | 0001 | 0002 | One per production release |
+| SCR-CUS | Customer-facing screen registry | 0012 | 0013 | Storefront screens — 0001 to 0010 assigned in Phase 2 Product OS setup; 0011 (Customer Profile) and 0012 (QR Scan Result) assigned for PRD-0004 |
 | SCR-ADM | Admin screen registry | 0011 | 0012 | Admin panel screens — 0001 to 0011 assigned in Phase 2 Product OS setup |
 | SCR-INV | Inventory screen registry | 0000 | 0001 | Stock / inventory screens — not yet used (inventory screens are under SCR-ADM) |
 | SCR-ORD | Order screen registry | 0000 | 0001 | Order flow screens (customer + admin) — not yet used (order screens are under SCR-CUS and SCR-ADM) |

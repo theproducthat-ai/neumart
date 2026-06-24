@@ -43,6 +43,8 @@ Single source of truth for all screens in the Nuemart platform. Every screen has
 | SCR-CUS-0008 | Checkout | `/checkout` | Customer Commerce | Checkout | Built | Order summary, address guard, Pay Later placement; Razorpay to be added |
 | SCR-CUS-0009 | Order History | `/orders` | Customer Commerce | Orders | Built | List of all customer orders with status |
 | SCR-CUS-0010 | Order Detail | `/orders/[id]` | Customer Commerce | Orders | Built | Full detail for a single order including payment and items |
+| SCR-CUS-0011 | Customer Profile | `/account/profile` | User Management | Profile | Planned | Customer QR code page — name, email, customerCode, QR display, download. PRD-0004. |
+| SCR-CUS-0012 | QR Scan Result | `/qr/customer/[qrCodeId]` | User Management | Profile | Planned | Public QR scan landing page — limited public view; admin-enhanced view when signed in. PRD-0004. |
 
 ---
 

@@ -61,6 +61,11 @@ export default function EditProductPage() {
               lowStockThreshold: product.lowStockThreshold ?? 5,
               isActive: product.isActive,
               isFeatured: product.isFeatured ?? false,
+              ingredients: product.ingredients ?? "",
+              containsAllergens: product.containsAllergens ?? [],
+              mayContainAllergens: product.mayContainAllergens ?? [],
+              dietaryTags: product.dietaryTags ?? [],
+              allergenNotes: product.allergenNotes ?? "",
             }}
           />
         </>

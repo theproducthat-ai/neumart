@@ -11,6 +11,7 @@ import {
   ClipboardList,
   Menu,
   Store,
+  QrCode,
 } from "lucide-react";
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
@@ -137,6 +138,22 @@ export function CustomerHeader() {
             </Button>
           )}
 
+          {isSignedIn && (
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              className={cn(
+                "hidden sm:inline-flex",
+                isActive("/account/profile") && "bg-accent text-accent-foreground"
+              )}
+            >
+              <Link href="/account/profile" aria-label="My QR Code">
+                <QrCode className="h-5 w-5" />
+              </Link>
+            </Button>
+          )}
+
           {/* Cart with badge */}
           <div className="relative">
             <Button variant="ghost" size="icon" asChild>
@@ -183,6 +200,12 @@ export function CustomerHeader() {
                     <Link href="/orders" className="flex items-center gap-2">
                       <ClipboardList className="h-4 w-4" />
                       Orders
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/account/profile" className="flex items-center gap-2">
+                      <QrCode className="h-4 w-4" />
+                      My QR Code
                     </Link>
                   </DropdownMenuItem>
                 </>

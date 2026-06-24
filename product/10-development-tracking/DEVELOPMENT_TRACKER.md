@@ -15,6 +15,7 @@ This file tracks all active and planned development work. Each entry links to a 
 | DEVPLAN ID | Request ID | PRD ID | Title | Stories | Next Action |
 |---|---|---|---|---|---|
 | DEVPLAN-0002 | REQ-0002 | PRD-0002 | Promotional Banner Carousel | US-0009 → US-0014 | Execute coding prompt |
+| DEVPLAN-0006 | REQ-0007 | PRD-0004 | Customer Profile QR Code for Store Identification | US-0020 → US-0023 | Execute DEVPLAN-0006-coding-prompt.md |
 
 ---
 
@@ -22,6 +23,7 @@ This file tracks all active and planned development work. Each entry links to a 
 
 | DEVPLAN ID | Request ID | Title | Completed Date | Commit | Notes |
 |---|---|---|---|---|---|
+| DEVPLAN-0005 | REQ-0005 | Allergen and Ingredient Details for Each Product | 2026-06-23 | — | 6 files changed, 1 new component. Schema: 5 optional fields on products table. Local dev verified. Ready for QA. |
 | — | — | Phase 10 smoke test + bug fixes | 2026-06-21 | b27d6f26 | Inventory query-param fix, mobile header More menu |
 | — | — | Phase 9 UX polish | 2026-06-21 | cfc8f4fd | Shared format helpers, mobile header, product card improvements |
 | — | — | Phase 8 production hardening | 2026-06-21 | 210eabbe | Seed data, README, .env.example, DEPLOYMENT_CHECKLIST |

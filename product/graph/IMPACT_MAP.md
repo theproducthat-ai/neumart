@@ -35,6 +35,7 @@ Use this map to quickly determine whether a feature requires:
 |---|---|---|---|
 | FEATURE-DEL-CORE-DELIVERY-MVP | IMPACT-0001 (Delivery Impact Assessment) | Approved | High |
 | FEATURE-COM-PLP-CAROUSEL | None — low-risk feature, no formal assessment conducted | N/A | Low |
+| FEATURE-COM-PDP-ALLERGENS | IMPACT-0002 (Allergen & Ingredient Details) | Approved | Low (1.7/10) |
 
 **Note on FEATURE-COM-PLP-CAROUSEL:** No formal impact assessment exists. This was acceptable because: no schema change, no payment impact, no role change, no new module, single screen (SCR-CUS-0001) addition only. The feature was classified Low risk at intake.
 

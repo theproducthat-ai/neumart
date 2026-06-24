@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
@@ -46,6 +46,11 @@ const schema = z.object({
   lowStockThreshold: z.coerce.number().int().min(0, "Threshold must be 0 or more").optional(),
   isActive: z.boolean(),
   isFeatured: z.boolean(),
+  ingredients: z.string().optional(),
+  containsAllergens: z.array(z.string()).optional(),
+  mayContainAllergens: z.array(z.string()).optional(),
+  dietaryTags: z.array(z.string()).optional(),
+  allergenNotes: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -56,6 +61,16 @@ interface ProductFormProps {
   defaultValues?: Partial<FormValues>;
 }
 
+const ALLERGEN_OPTIONS = [
+  "Milk", "Peanuts", "Tree nuts", "Wheat", "Gluten",
+  "Soy", "Sesame", "Mustard", "Egg", "Fish", "Shellfish", "Sulphites",
+];
+
+const DIETARY_TAG_OPTIONS = [
+  "Vegetarian", "Vegan", "Jain-friendly", "Organic",
+  "No added sugar", "Low fat", "Gluten-free", "Dairy-free", "Nut-free", "Soy-free",
+];
+
 export function ProductForm({ mode, productId, defaultValues }: ProductFormProps) {
   const router = useRouter();
   const adminCreate = useMutation(api.products.adminCreate);
@@ -63,7 +78,7 @@ export function ProductForm({ mode, productId, defaultValues }: ProductFormProps
   const categories = useQuery(api.categories.getActiveCategories);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as Resolver<FormValues>,
     defaultValues: {
       name: "",
       slug: "",
@@ -76,6 +91,11 @@ export function ProductForm({ mode, productId, defaultValues }: ProductFormProps
       lowStockThreshold: 5,
       isActive: true,
       isFeatured: false,
+      ingredients: "",
+      containsAllergens: [],
+      mayContainAllergens: [],
+      dietaryTags: [],
+      allergenNotes: "",
       ...defaultValues,
     },
   });
@@ -96,6 +116,14 @@ export function ProductForm({ mode, productId, defaultValues }: ProductFormProps
       const priceInPaise = Math.round(values.price * 100);
       const imageUrl = values.imageUrl?.trim() || undefined;
 
+      const allergenFields = {
+        ingredients: values.ingredients?.trim() || undefined,
+        containsAllergens: values.containsAllergens?.length ? values.containsAllergens : undefined,
+        mayContainAllergens: values.mayContainAllergens?.length ? values.mayContainAllergens : undefined,
+        dietaryTags: values.dietaryTags?.length ? values.dietaryTags : undefined,
+        allergenNotes: values.allergenNotes?.trim() || undefined,
+      };
+
       if (mode === "create") {
         await adminCreate({
           name: values.name,
@@ -109,6 +137,7 @@ export function ProductForm({ mode, productId, defaultValues }: ProductFormProps
           lowStockThreshold: values.lowStockThreshold ?? undefined,
           isActive: values.isActive,
           isFeatured: values.isFeatured || undefined,
+          ...allergenFields,
         });
         toast.success("Product created");
         router.push("/admin/products");
@@ -126,6 +155,7 @@ export function ProductForm({ mode, productId, defaultValues }: ProductFormProps
           lowStockThreshold: values.lowStockThreshold ?? undefined,
           isActive: values.isActive,
           isFeatured: values.isFeatured || undefined,
+          ...allergenFields,
         });
         toast.success("Product updated");
         router.push("/admin/products");
@@ -338,6 +368,144 @@ export function ProductForm({ mode, productId, defaultValues }: ProductFormProps
                   />
                 </FormControl>
                 <Label htmlFor="isFeatured" className="cursor-pointer">Featured</Label>
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Allergen & Ingredient section */}
+        <div className="space-y-4 rounded-lg border p-4">
+          <div>
+            <p className="text-sm font-semibold">Allergen &amp; Ingredient Information</p>
+            <p className="text-xs text-muted-foreground">All fields are optional. Leave blank if information is not available.</p>
+          </div>
+
+          <FormField
+            control={form.control}
+            name="ingredients"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Ingredients</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="e.g. Wheat flour, sugar, salt, edible vegetable oil"
+                    rows={3}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="containsAllergens"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Contains Allergens</FormLabel>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {ALLERGEN_OPTIONS.map((allergen) => (
+                    <label key={allergen} className="flex cursor-pointer items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border"
+                        checked={field.value?.includes(allergen) ?? false}
+                        onChange={(e) => {
+                          const current = field.value ?? [];
+                          field.onChange(
+                            e.target.checked
+                              ? [...current, allergen]
+                              : current.filter((v) => v !== allergen)
+                          );
+                        }}
+                      />
+                      {allergen}
+                    </label>
+                  ))}
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="mayContainAllergens"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>May Contain Allergens</FormLabel>
+                <FormDescription>Cross-contamination warnings from shared facility or equipment.</FormDescription>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {ALLERGEN_OPTIONS.map((allergen) => (
+                    <label key={allergen} className="flex cursor-pointer items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border"
+                        checked={field.value?.includes(allergen) ?? false}
+                        onChange={(e) => {
+                          const current = field.value ?? [];
+                          field.onChange(
+                            e.target.checked
+                              ? [...current, allergen]
+                              : current.filter((v) => v !== allergen)
+                          );
+                        }}
+                      />
+                      {allergen}
+                    </label>
+                  ))}
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="dietaryTags"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dietary Tags</FormLabel>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {DIETARY_TAG_OPTIONS.map((tag) => (
+                    <label key={tag} className="flex cursor-pointer items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border"
+                        checked={field.value?.includes(tag) ?? false}
+                        onChange={(e) => {
+                          const current = field.value ?? [];
+                          field.onChange(
+                            e.target.checked
+                              ? [...current, tag]
+                              : current.filter((v) => v !== tag)
+                          );
+                        }}
+                      />
+                      {tag}
+                    </label>
+                  ))}
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="allergenNotes"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Allergen Notes</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="e.g. Manufactured in a facility that also processes nuts"
+                    rows={2}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />

@@ -14,11 +14,20 @@ export async function getOrCreateUser(ctx: MutationCtx) {
 
   if (existing !== null) return existing;
 
+  const allUsers = await ctx.db.query("users").collect();
+  const seq = String(allUsers.length + 1).padStart(6, "0");
+  const customerCode = `CUST-${seq}`;
+  const qrCodeId = crypto.randomUUID();
+
   const id = await ctx.db.insert("users", {
     tokenIdentifier: identity.tokenIdentifier,
     email: identity.email ?? "",
     name: identity.name,
     createdAt: Date.now(),
+    customerCode,
+    qrCodeId,
+    qrEnabled: true,
+    qrCreatedAt: Date.now(),
   });
 
   return (await ctx.db.get(id))!;

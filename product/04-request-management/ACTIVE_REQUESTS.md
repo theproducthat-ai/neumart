@@ -80,6 +80,17 @@ Update both files whenever a request changes status.
 
 ---
 
+## Build Prompt Created
+
+> Coding prompt written, ready for a developer to execute.
+
+| REQ ID | PRD ID | DEVPLAN ID | Title | Next Action |
+|---|---|---|---|---|
+| REQ-0007 | PRD-0004 | DEVPLAN-0006 | Customer Profile QR Code for Store Identification | Execute DEVPLAN-0006-coding-prompt.md |
+| REQ-0008 | — | DEVPLAN-0007 | Category Icons on Product Listing Filter Pills | Run QA per DEVPLAN-0007 checklist |
+
+---
+
 ## In Development
 
 > Actively being built.
@@ -95,9 +106,10 @@ Update both files whenever a request changes status.
 | REQ ID | PRD ID | Dev Plan | Title | Next Action |
 |---|---|---|---|---|
 | REQ-0001 | PRD-0001 | DEVPLAN-0001 | Delivery Module — MVP | Run `npx convex deploy` → QA per DEVPLAN-0001 checklist |
-| REQ-0002 | PRD-0002 | DEVPLAN-0002 | Image Carousel at Top of Product Listing Page | ✅ UAT Conditional Pass (2026-06-23) — run `/product-release REQ-0002` |
+| REQ-0002 | PRD-0002 | DEVPLAN-0002 | Image Carousel at Top of Product Listing Page | RELEASE-0001 created — deploy per RELEASE-0001.md, confirm when live |
 | REQ-0003 | — | DEVPLAN-0003 | Product Card Price Alignment | QA per DEVPLAN-0003 checklist |
 | REQ-0004 | — | — | Favourite Icon Repositioned as Product Image Overlay | ✅ QA-0002 Passed — run UAT-0002 for business sign-off |
+| REQ-0005 | PRD-0003 | DEVPLAN-0005 | Allergen and Ingredient Details for Each Product | Run QA per DEVPLAN-0005 checklist |
 
 ---
 

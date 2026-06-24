@@ -7,9 +7,33 @@ import { api } from "@/convex/_generated/api";
 import { ProductCard } from "@/components/products/product-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Package, Search } from "lucide-react";
+import {
+  Apple,
+  Carrot,
+  Cookie,
+  GlassWater,
+  Home,
+  LayoutGrid,
+  Milk,
+  Package,
+  Popcorn,
+  Search,
+  Wheat,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { BannerCarousel } from "@/components/banners/banner-carousel";
 import { banners } from "@/lib/banners.config";
+
+const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
+  fruits: Apple,
+  vegetables: Carrot,
+  dairy: Milk,
+  bakery: Cookie,
+  beverages: GlassWater,
+  snacks: Popcorn,
+  staples: Wheat,
+  household: Home,
+};
 
 function CategoryChips({
   categories,
@@ -31,24 +55,31 @@ function CategoryChips({
       <Button
         variant={!category && !search ? "default" : "outline"}
         size="sm"
+        className="gap-1.5"
         onClick={() => onSelect("")}
       >
+        <LayoutGrid className="h-4 w-4" />
         All
       </Button>
       {categories === undefined
         ? Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-8 w-20 rounded-md" />
           ))
-        : categories.map((cat) => (
-            <Button
-              key={cat._id}
-              variant={category === cat.slug ? "default" : "outline"}
-              size="sm"
-              onClick={() => onSelect(cat.slug)}
-            >
-              {cat.name}
-            </Button>
-          ))}
+        : categories.map((cat) => {
+            const Icon = CATEGORY_ICON_MAP[cat.slug] ?? Package;
+            return (
+              <Button
+                key={cat._id}
+                variant={category === cat.slug ? "default" : "outline"}
+                size="sm"
+                className="gap-1.5"
+                onClick={() => onSelect(cat.slug)}
+              >
+                <Icon className="h-4 w-4" />
+                {cat.name}
+              </Button>
+            );
+          })}
     </div>
   );
 }

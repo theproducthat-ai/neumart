@@ -54,6 +54,7 @@ Single source of truth for all modules in the Nuemart platform. Each module is s
 
 **Future Candidates:**
 - Discount coupon application at cart / checkout
+- Allergen and dietary tag filtering on product listing (depends on REQ-0005 shipping and catalogue data being populated — tracked as REQ-0006 Parked)
 
 **Related modules:** User Management (auth + addresses), Inventory Management (stock enforcement), Payment Management (checkout payment)
 
@@ -80,6 +81,8 @@ Single source of truth for all modules in the Nuemart platform. Each module is s
 **Future Candidates:**
 - Coupon management (create, edit, usage reporting)
 - Delivery assignment interface (Candidate — Delivery Module)
+- Allergen info completeness indicator on product list (Missing / Added / Needs review) — depends on REQ-0005
+- Admin-managed custom dietary tag master — depends on REQ-0005 fixed tag list being in use first
 
 **Related modules:** All modules — Admin Console is the operational control plane for the platform.
 

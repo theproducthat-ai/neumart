@@ -95,6 +95,11 @@ export const adminCreate = mutation({
     lowStockThreshold: v.optional(v.number()),
     isActive: v.boolean(),
     isFeatured: v.optional(v.boolean()),
+    ingredients: v.optional(v.string()),
+    containsAllergens: v.optional(v.array(v.string())),
+    mayContainAllergens: v.optional(v.array(v.string())),
+    dietaryTags: v.optional(v.array(v.string())),
+    allergenNotes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     await assertAdmin(ctx);
@@ -124,6 +129,11 @@ export const adminUpdate = mutation({
     lowStockThreshold: v.optional(v.number()),
     isActive: v.boolean(),
     isFeatured: v.optional(v.boolean()),
+    ingredients: v.optional(v.string()),
+    containsAllergens: v.optional(v.array(v.string())),
+    mayContainAllergens: v.optional(v.array(v.string())),
+    dietaryTags: v.optional(v.array(v.string())),
+    allergenNotes: v.optional(v.string()),
   },
   handler: async (ctx, { productId, ...fields }) => {
     await assertAdmin(ctx);

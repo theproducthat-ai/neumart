@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/store/cart-store";
+import { AllergenInfoSection } from "@/components/products/AllergenInfoSection";
 
 function StockBadge({ qty, isActive }: { qty: number; isActive: boolean }) {
   if (!isActive) return <Badge variant="secondary">Unavailable</Badge>;
@@ -210,6 +211,14 @@ export default function ProductDetailPage() {
           )}
         </div>
       </div>
+
+      <AllergenInfoSection
+        ingredients={product.ingredients}
+        containsAllergens={product.containsAllergens}
+        mayContainAllergens={product.mayContainAllergens}
+        dietaryTags={product.dietaryTags}
+        allergenNotes={product.allergenNotes}
+      />
     </div>
   );
 }
