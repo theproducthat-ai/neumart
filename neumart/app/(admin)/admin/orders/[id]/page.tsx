@@ -201,6 +201,14 @@ export default function AdminOrderDetailPage({
                 <span className="text-muted-foreground">Subtotal</span>
                 <span>{formatCurrency(order.subtotal)}</span>
               </div>
+              {order.discountAmount !== undefined && order.discountAmount > 0 && (
+                <div className="flex justify-between text-sm text-green-700 dark:text-green-400">
+                  <span>
+                    Coupon{order.couponCodeSnapshot ? ` (${order.couponCodeSnapshot})` : ""}
+                  </span>
+                  <span className="font-medium">−{formatCurrency(order.discountAmount)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Delivery</span>
                 <span className="font-medium text-green-600">

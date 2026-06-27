@@ -195,9 +195,37 @@ Files written:
 
 ---
 
+## Lane 1 Quick Fix Notes — Output Format
+
+For Bug Objects on Lane 1, the devplan command produces inline quick fix notes (no stored object). The output block for Lane 1 differs from the standard format:
+
+```
+WRITE MODE:                        {LIVE | DRY-RUN}
+FILES CHANGED:                     No
+PRODUCT OS ARTIFACTS CREATED:     No — Lane 1 quick fix notes are inline
+APPLICATION FILES LIKELY IMPACTED: {n}
+  - {path/to/file.ts}
+  - {path/to/file.tsx}
+  ...
+CODE CHANGED:                      No — this command identifies implementation scope only;
+                                   the developer must apply the fix separately
+LEGACY SYNC:                       No
+NEXT ACTION:
+→ Developer implements the changes above. After the fix is merged, update fix_status
+  to Fixed / Merged / Ready for QA, then run /product-qa {BUG-ID}.
+```
+
+`FILES CHANGED` always reports Product OS artifact writes. For Lane 1, this is always `No` because quick fix notes are inline text, not written files.
+`APPLICATION FILES LIKELY IMPACTED` reports the developer's implementation scope separately.
+These two fields must never be merged into a single `FILES CHANGED: No — N application files identified` statement.
+
+---
+
 ## Failure Conditions
 
 - **Stories not found or in Draft status:** AI warns and requests confirmation to proceed.
 - **Schema change in plan but no migration approach identified:** AI flags this as a blocking risk and notes it must be resolved before Phase 1 begins.
 - **Dependency on another in-flight feature:** AI surfaces the dependency as a blocker and recommends coordination with the other feature's dev plan.
 - **Story requirements conflict with known technical constraints:** AI surfaces the conflict, proposes resolution, and flags for product owner review before finalizing plan.
+- **Lane 1 output uses `FILES CHANGED: No — N application files identified`**: INVALID — use `APPLICATION FILES LIKELY IMPACTED: N` as a separate field. `FILES CHANGED` is for Product OS artifact writes only.
+- **Lane 1 output omits `APPLICATION FILES LIKELY IMPACTED` field**: INVALID — implementation scope must always be shown even when no Product OS files are written.

@@ -10,6 +10,7 @@
 
 import type * as addresses from "../addresses.js";
 import type * as categories from "../categories.js";
+import type * as coupons from "../coupons.js";
 import type * as delivery from "../delivery.js";
 import type * as favourites from "../favourites.js";
 import type * as helpers from "../helpers.js";
@@ -20,6 +21,7 @@ import type * as payments from "../payments.js";
 import type * as products from "../products.js";
 import type * as seed from "../seed.js";
 import type * as users from "../users.js";
+import type * as utils_coupon from "../utils/coupon.js";
 
 import type {
   ApiFromModules,
@@ -30,6 +32,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   addresses: typeof addresses;
   categories: typeof categories;
+  coupons: typeof coupons;
   delivery: typeof delivery;
   favourites: typeof favourites;
   helpers: typeof helpers;
@@ -40,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   products: typeof products;
   seed: typeof seed;
   users: typeof users;
+  "utils/coupon": typeof utils_coupon;
 }>;
 
 /**

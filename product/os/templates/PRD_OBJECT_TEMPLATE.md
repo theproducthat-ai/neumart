@@ -1,3 +1,45 @@
+---
+id: ""                               # e.g. PRD-COM-PLP-CAROUSEL-001
+object_type: PRD
+title: ""
+status: ""                           # Draft | Pending Approval | Approved | Superseded
+priority: ""                         # critical | high | medium | low
+
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+feature_id: ""                       # FEATURE-... ID (omit if not applicable)
+linked_request: ""                   # REQUEST-... ID (omit if not applicable)
+linked_risks: []                     # RISK-... IDs
+linked_decisions: []                 # DECISION-... IDs
+
+owner: ""
+created_by: ""
+created_date: ""                     # YYYY-MM-DD
+updated_date: ""                     # YYYY-MM-DD
+version: "1.0"
+schema_version: "2.0"              # Product OS schema generation version
+template_version: "1.0"           # Version of this template file
+success_metrics: []              # KPI IDs or descriptive metrics
+guardrail_metrics: []            # Metrics that must not regress
+analytics_events: []             # ANALYTICS_EVENT-... IDs
+dashboard_required: false        # Whether a dashboard object is needed
+baseline_value: ""               # Current baseline before change
+target_value: ""                 # Target value after change
+measurement_window: ""           # e.g. "30 days post-release"
+metric_owner: ""                 # Who owns tracking this metric
+
+---
+# PRD
+
+**Template status:** Active
+**Schema version:** 2.0
+**Use this when:** Formal specification for a new feature or major enhancement requiring cross-functional alignment, design, engineering, QA, and stakeholder approval.
+**Do not use this when:** Small enhancements or configuration changes (use PRD_LITE_TEMPLATE.md). Internal tech-debt work. Fast fixes.
+**Source-of-truth folder:** `product/objects/prds/`
+**Related templates:** PRD_LITE_TEMPLATE.md, FEATURE_OBJECT_TEMPLATE.md, TECH_DESIGN_OBJECT_TEMPLATE.md
+
+---
+
+
 # Nuemart Product OS — PRD Object Template
 **Version:** 1.0 | **Date:** 2026-06-22 | **Status:** Active
 
@@ -27,6 +69,15 @@ prd_version: "1.0"                  # Independently tracked PRD version
 canonical_name: ""
 display_name: ""
 file_slug: ""
+
+# ─────────────────────────────────────────────
+# HIERARCHY REFERENCES (V2)
+# ─────────────────────────────────────────────
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+module_area_id: ""                   # MA-COM-PLP | MA-COM-CHK | MA-ADM-ORD | etc.
+capability_id: ""                    # CAP-XXXX (capability this PRD specifies)
+feature_id: ""                       # FEAT-XXX (derived from linked_feature)
+subfeature_ids: []                   # SUBFEATURE-XXX IDs if PRD covers multiple sub-features
 
 # ─────────────────────────────────────────────
 # PRD-SPECIFIC FIELDS

@@ -1,3 +1,37 @@
+---
+id: ""                               # e.g. RISK-COM-PLP-CAROUSEL-001
+object_type: Risk
+title: ""
+status: ""                           # Identified | Assessed | Mitigated | Accepted | Resolved | Closed
+priority: ""                         # critical | high | medium | low
+
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+feature_id: ""                       # FEATURE-... ID (omit if not applicable)
+linked_request: ""                   # REQUEST-... ID (omit if not applicable)
+linked_risks: []                     # RISK-... IDs
+linked_decisions: []                 # DECISION-... IDs
+
+owner: ""
+created_by: ""
+created_date: ""                     # YYYY-MM-DD
+updated_date: ""                     # YYYY-MM-DD
+version: "1.0"
+schema_version: "2.0"              # Product OS schema generation version
+template_version: "1.0"           # Version of this template file
+
+---
+# Risk
+
+**Template status:** Active
+**Schema version:** 2.0
+**Use this when:** Documenting an identified risk to product delivery, quality, or business outcome — with likelihood, impact, and mitigation.
+**Do not use this when:** Incidents that have already occurred (use INCIDENT_OBJECT_TEMPLATE.md). Assumptions that may never materialise as risk (use ASSUMPTION_OBJECT_TEMPLATE.md).
+**Source-of-truth folder:** `product/objects/risks/`
+**Related templates:** DECISION_OBJECT_TEMPLATE.md, ASSUMPTION_OBJECT_TEMPLATE.md, INCIDENT_OBJECT_TEMPLATE.md
+
+---
+
+
 # Nuemart Product OS — Risk Object Template
 **Version:** 1.0 | **Date:** 2026-06-22 | **Status:** Active
 
@@ -26,6 +60,13 @@ version: "1.0"
 canonical_name: ""                   # e.g. "Carousel schema migration during live traffic"
 display_name: ""
 file_slug: ""
+
+# ─────────────────────────────────────────────
+# HIERARCHY REFERENCES (V2)
+# ─────────────────────────────────────────────
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+module_area_id: ""                   # MA-COM-PLP | MA-COM-CHK | MA-ADM-ORD | etc.
+feature_id: ""                       # FEAT-XXX (which feature this risk belongs to)
 
 # ─────────────────────────────────────────────
 # RISK CLASSIFICATION

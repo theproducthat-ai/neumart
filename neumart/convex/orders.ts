@@ -1,6 +1,9 @@
 import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import type { MutationCtx } from "./_generated/server";
+import { Doc, Id } from "./_generated/dataModel";
 import { getOrCreateUser, assertAdmin } from "./helpers";
+import { computeCouponDiscount } from "./utils/coupon";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -80,6 +83,71 @@ export const getOrderDetail = query({
   },
 });
 
+// ── Internal coupon validation helper ────────────────────────────────────────
+
+async function validateAndApplyCoupon(
+  ctx: MutationCtx,
+  couponCode: string,
+  userId: Id<"users">,
+  subtotal: number,
+): Promise<{ discountAmount: number; coupon: Doc<"coupons"> }> {
+  const coupon = await ctx.db
+    .query("coupons")
+    .withIndex("by_code", (q) => q.eq("code", couponCode.toUpperCase().trim()))
+    .unique();
+
+  if (!coupon) throw new ConvexError("COUPON_NOT_FOUND");
+  if (!coupon.isActive) throw new ConvexError("COUPON_INACTIVE");
+  if (coupon.startsAt && Date.now() < coupon.startsAt) {
+    throw new ConvexError("COUPON_NOT_YET_ACTIVE");
+  }
+  if (coupon.expiresAt && Date.now() > coupon.expiresAt) {
+    throw new ConvexError("COUPON_EXPIRED");
+  }
+
+  if (coupon.usageLimit !== undefined) {
+    const totalUsages = await ctx.db
+      .query("couponUsages")
+      .withIndex("by_couponId", (q) => q.eq("couponId", coupon._id))
+      .take(coupon.usageLimit + 1);
+    if (totalUsages.length >= coupon.usageLimit) {
+      throw new ConvexError("COUPON_EXHAUSTED");
+    }
+  }
+
+  if (coupon.perUserLimit !== undefined) {
+    const userUsages = await ctx.db
+      .query("couponUsages")
+      .withIndex("by_couponId_and_userId", (q) =>
+        q.eq("couponId", coupon._id).eq("userId", userId)
+      )
+      .take(coupon.perUserLimit + 1);
+    if (userUsages.length >= coupon.perUserLimit) {
+      throw new ConvexError("COUPON_PER_USER_LIMIT");
+    }
+  }
+
+  if (
+    coupon.minimumOrderValue !== undefined &&
+    subtotal < coupon.minimumOrderValue
+  ) {
+    throw new ConvexError(
+      JSON.stringify({
+        code: "COUPON_MINIMUM_NOT_MET",
+        minimumOrderValue: coupon.minimumOrderValue,
+      })
+    );
+  }
+
+  const discountAmount = computeCouponDiscount({
+    subtotal,
+    discountValue: coupon.discountValue,
+    maximumDiscount: coupon.maximumDiscount ?? subtotal,
+  });
+
+  return { discountAmount, coupon };
+}
+
 // ── Place order without payment ───────────────────────────────────────────────
 
 export const placeOrderWithoutPayment = mutation({
@@ -91,8 +159,9 @@ export const placeOrderWithoutPayment = mutation({
         quantity: v.number(),
       })
     ),
+    couponCode: v.optional(v.string()),
   },
-  handler: async (ctx, { addressId, items }) => {
+  handler: async (ctx, { addressId, items, couponCode }) => {
     const user = await getOrCreateUser(ctx);
 
     // 1. Cart must not be empty
@@ -144,8 +213,18 @@ export const placeOrderWithoutPayment = mutation({
 
     // 5. Calculate totals (₹0 delivery for now — add rules in a later phase)
     const deliveryFee = 0;
-    const total = subtotal + deliveryFee;
     const now = Date.now();
+
+    // 5a. Validate coupon if provided (atomic — same mutation transaction)
+    let discountAmount = 0;
+    let appliedCoupon: Doc<"coupons"> | undefined;
+    if (couponCode) {
+      const result = await validateAndApplyCoupon(ctx, couponCode, user._id, subtotal);
+      discountAmount = result.discountAmount;
+      appliedCoupon = result.coupon;
+    }
+
+    const total = subtotal - discountAmount + deliveryFee;
 
     // 6. Create order
     const orderId = await ctx.db.insert("orders", {
@@ -160,6 +239,15 @@ export const placeOrderWithoutPayment = mutation({
       total,
       currency: "INR",
       itemCount: items.length,
+      ...(appliedCoupon && {
+        discountAmount,
+        couponId: appliedCoupon._id,
+        couponCodeSnapshot: appliedCoupon.code,
+        couponDiscountTypeSnapshot: appliedCoupon.discountType,
+        couponDiscountValueSnapshot: appliedCoupon.discountValue,
+        couponMaxDiscountSnapshot: appliedCoupon.maximumDiscount,
+        couponAppliedAt: now,
+      }),
       createdAt: now,
       updatedAt: now,
     });
@@ -198,7 +286,18 @@ export const placeOrderWithoutPayment = mutation({
       })
     );
 
-    // 9. Create delivery task — atomic with order placement
+    // 9. Write couponUsage atomically — same mutation, ensures OCC race protection
+    if (appliedCoupon) {
+      await ctx.db.insert("couponUsages", {
+        couponId: appliedCoupon._id,
+        userId: user._id,
+        orderId,
+        discountAmount,
+        createdAt: now,
+      });
+    }
+
+    // 10. Create delivery task — atomic with order placement
     await ctx.db.insert("deliveryTasks", {
       orderId,
       userId: user._id,

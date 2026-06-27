@@ -1,3 +1,37 @@
+---
+id: ""                               # e.g. DECISION-COM-PLP-CAROUSEL-001
+object_type: Decision
+title: ""
+status: ""                           # Draft | Final | Superseded
+priority: ""                         # critical | high | medium | low
+
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+feature_id: ""                       # FEATURE-... ID (omit if not applicable)
+linked_request: ""                   # REQUEST-... ID (omit if not applicable)
+linked_risks: []                     # RISK-... IDs
+linked_decisions: []                 # DECISION-... IDs
+
+owner: ""
+created_by: ""
+created_date: ""                     # YYYY-MM-DD
+updated_date: ""                     # YYYY-MM-DD
+version: "1.0"
+schema_version: "2.0"              # Product OS schema generation version
+template_version: "1.0"           # Version of this template file
+
+---
+# Decision
+
+**Template status:** Active
+**Schema version:** 2.0
+**Use this when:** Recording a significant product, design, or technical decision — what was decided, why, who decided, and what alternatives were rejected.
+**Do not use this when:** Minor implementation choices that are self-evident from the code. Design-specific decisions (use DESIGN_DECISION_OBJECT_TEMPLATE.md for those).
+**Source-of-truth folder:** `product/objects/decisions/`
+**Related templates:** RISK_OBJECT_TEMPLATE.md, DESIGN_DECISION_OBJECT_TEMPLATE.md, ASSUMPTION_OBJECT_TEMPLATE.md
+
+---
+
+
 # Nuemart Product OS — Decision Object Template
 **Version:** 1.0 | **Date:** 2026-06-22 | **Status:** Active
 

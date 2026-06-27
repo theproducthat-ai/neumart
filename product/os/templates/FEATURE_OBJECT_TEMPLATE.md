@@ -1,3 +1,45 @@
+---
+id: ""                               # e.g. FEATURE-COM-PLP-CAROUSEL
+object_type: Feature
+title: ""
+status: ""                           # Candidate | Planned | In Development | Shipped | Deprecated
+priority: ""                         # critical | high | medium | low
+
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+feature_id: ""                       # FEATURE-... ID (omit if not applicable)
+linked_request: ""                   # REQUEST-... ID (omit if not applicable)
+linked_risks: []                     # RISK-... IDs
+linked_decisions: []                 # DECISION-... IDs
+
+owner: ""
+created_by: ""
+created_date: ""                     # YYYY-MM-DD
+updated_date: ""                     # YYYY-MM-DD
+version: "1.0"
+schema_version: "2.0"              # Product OS schema generation version
+template_version: "1.0"           # Version of this template file
+success_metrics: []              # KPI IDs or descriptive metrics
+guardrail_metrics: []            # Metrics that must not regress
+analytics_events: []             # ANALYTICS_EVENT-... IDs
+dashboard_required: false        # Whether a dashboard object is needed
+baseline_value: ""               # Current baseline before change
+target_value: ""                 # Target value after change
+measurement_window: ""           # e.g. "30 days post-release"
+metric_owner: ""                 # Who owns tracking this metric
+
+---
+# Feature
+
+**Template status:** Active
+**Schema version:** 2.0
+**Use this when:** Documenting a new user-visible product capability with its own lifecycle (stories, QA, UAT, release).
+**Do not use this when:** Small enhancements to existing features (use ENHANCEMENT_OBJECT_TEMPLATE.md). Configuration-only changes. Bug fixes.
+**Source-of-truth folder:** `product/objects/features/`
+**Related templates:** REQUEST_OBJECT_TEMPLATE.md, PRD_OBJECT_TEMPLATE.md, EPIC_OBJECT_TEMPLATE.md, SUBFEATURE_OBJECT_TEMPLATE.md
+
+---
+
+
 # Nuemart Product OS — Feature Object Template
 **Version:** 1.0 | **Date:** 2026-06-22 | **Status:** Active
 
@@ -26,6 +68,15 @@ version: "1.0"
 canonical_name: ""
 display_name: ""
 file_slug: ""
+
+# ─────────────────────────────────────────────
+# HIERARCHY REFERENCES (V2)
+# ─────────────────────────────────────────────
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+module_area_id: ""                   # MA-COM-PLP | MA-COM-CHK | MA-ADM-ORD | etc.
+capability_id: ""                    # CAP-XXXX (capability this feature delivers)
+subfeature_id: ""                    # SUBFEATURE-XXX (if this feature has known sub-features, list in child_features)
+component_ids: []                    # CMP-XXXX IDs for components used or introduced by this feature
 
 # ─────────────────────────────────────────────
 # FEATURE-SPECIFIC FIELDS

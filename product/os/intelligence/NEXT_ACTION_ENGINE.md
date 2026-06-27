@@ -40,6 +40,101 @@ The decision tree below is evaluated for each active work item. The tree is dete
 
 ---
 
+### Branch 0 — Dry-run Reference (No Lifecycle Advancement)
+
+**Condition:** An item referenced in the session exists only as a dry-run session reference — no committed file in `product/objects/`, no entry in `REQUEST_INDEX.md`.
+
+**Rule:** Dry-run references are not active lifecycle items. Do not advance their lifecycle, do not recommend actions as if they are committed, and do not count them in the active item summary.
+
+```
+IF item is a dry-run reference (no committed file, no index entry):
+  OUTPUT:
+    RECOMMENDED NEXT ACTION: Commit this item before advancing its lifecycle
+    COMMAND: Re-run /product-request without --dry-run to commit
+             {item.preview_id} and assign a real ID from MASTER_REGISTRY.
+    REASON: {item.preview_id} exists only as a dry-run preview — it has no
+            committed Product OS object file and no index entry.
+            Lifecycle advancement requires a committed object.
+    BLOCKING: N (informational — item cannot advance until committed)
+    BLOCKER DETAIL: None (not blocking active work; just not yet committed)
+```
+
+---
+
+### Branch 0b — Change Impact Analysis Output
+
+**Condition:** The most recent operation for a target item was `CHANGE IMPACT ANALYSIS COMPLETE` (output from `product-request` with midstream trigger phrases).
+
+**Rule:** A change impact analysis produces a recommendation (amend / new version / Phase 2). The next action depends on which recommendation the user accepted.
+
+```
+IF last_operation == "CHANGE IMPACT ANALYSIS COMPLETE":
+  IF recommendation == "amend":
+    RECOMMENDED NEXT ACTION: Commit the amended scope for {target_id}
+    COMMAND: /product-request --commit [scope description for {target_id}]
+    REASON: Change impact analysis recommended amending {target_id} scope.
+             Committing applies the scope change to the object before intake closes.
+
+  IF recommendation == "phase_2":
+    RECOMMENDED NEXT ACTION: Commit the Phase 2 deferred item
+    COMMAND: /product-request --commit [Phase 2 scope description]
+    REASON: Change impact analysis recommended deferring this scope.
+             By default, Phase 2 creates a DEFERRED_ITEM (known scope, sequenced out),
+             not an active REQUEST. Preview ID must be committed to receive a real ID
+             from MASTER_REGISTRY. To activate for delivery later, re-run
+             /product-request referencing the deferred item ID.
+
+  IF recommendation == "new_version":
+    RECOMMENDED NEXT ACTION: Create a new version of {target_id}
+    COMMAND: /product-request --commit update {target_id} with [scope change]
+    REASON: Change impact analysis recommended a new version (committed v1 exists).
+
+  IF open_questions_remain:
+    RECOMMENDED NEXT ACTION: Answer open questions before committing
+    COMMAND: Answer questions listed in CHANGE IMPACT ANALYSIS COMPLETE output
+             for {target_id}, then re-run /product-request.
+    REASON: Lane and scope cannot be confirmed until questions are answered.
+```
+
+---
+
+### Branch 0c — Roadmap Activation (Uncommitted Parent)
+
+**Condition:** User triggered roadmap activation (e.g., "Activate ROADMAP-{ID}") but the referenced ROADMAP file does not exist at `product/objects/roadmap-options/`.
+
+**Rule:** Do not proceed with REQUEST intake. Surface the `ROADMAP ACTIVATION TARGET NOT COMMITTED` block. The recommended next action depends on which option the user chooses.
+
+```
+IF roadmap_activation_triggered AND target_file_not_found:
+  OUTPUT:
+    RECOMMENDED NEXT ACTION: Choose how to handle the uncommitted roadmap parent
+    COMMAND:
+      Option A (Recommended):
+        /product-request --commit [roadmap description]
+        Then re-run: /product-request [activation description]
+        Reason: commits roadmap parent first; full traceability maintained.
+      Option B:
+        /product-request --commit [request description] — confirm "Option B"
+        Reason: proceeds without a committed parent; continuation link is session-only.
+      Option C:
+        /product-request --commit [description for both objects]
+        Reason: creates both in one commit; traceability without two steps.
+        Note (if discovery_framing = true): Option C also plans the discovery
+        session object. Files included:
+          product/objects/discovery/DISCOVERY-{AREA}-{MODULE}-{SLUG}-{SEQ}.md
+          product/indexes/DISCOVERY_INDEX.md  (if file exists)
+          product/views/ROADMAP_VIEW.md        (if file exists)
+        Discovery object is created during /product-prd — not at intake.
+    REASON: {ROADMAP-ID} has no committed file at
+            product/objects/roadmap-options/{ROADMAP-ID}.md.
+            Proceeding silently would create a REQUEST with an unverifiable
+            parent — the continuation link cannot be traced in Product OS history.
+    BLOCKING: N (informational — intake proceeds once option is confirmed)
+    BLOCKER DETAIL: File not found: product/objects/roadmap-options/{ROADMAP-ID}.md
+```
+
+---
+
 ### Branch 1 — Blocking Gap Present
 
 **Condition:** GAP_DETECTION_ENGINE has flagged one or more Blocking gaps for this item.
@@ -83,6 +178,23 @@ IF any_pending_approval_exists(item):
 The lifecycle decision tree:
 
 ```
+IF item.object_type == "Bug" AND item.lane == "Lane 1":
+  IF item.fix_status in ["Open", "In Progress"]:
+    → next action: Implement the fix per quick fix notes
+    → COMMAND: Developer implements fix per /product-devplan {item.id} quick fix notes.
+               Update fix_status to Fixed / Merged / Ready for QA when done.
+    → REASON: Bug fix not yet implemented. Quick fix notes describe the implementation scope.
+  IF item.fix_status in ["Fixed", "Merged", "Ready for QA"]:
+    → next action: Run QA smoke check
+    → COMMAND: /product-qa {item.id}
+    → REASON: Fix is marked as ready. QA smoke check is the next required step for Lane 1.
+  IF item.qa_status == "Passed" OR item.fix_status == "Resolved":
+    → next action: Bug is resolved — no further action needed
+    → COMMAND: Update bug fix_status to Resolved if not already done.
+               Update BUG_INDEX.md and MOD-{MODULE}.md workspace accordingly.
+               No UAT or release object required for Lane 1.
+    → NOTE: Lane 1 bugs do not proceed to UAT or release steps. Work is complete.
+
 IF item.status == "Received":
   → next action: Classify the request
   → COMMAND: Classification happens automatically — check OBJECT_INDEX.md for classification status.

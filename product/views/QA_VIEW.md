@@ -12,7 +12,9 @@
 
 ## 1. Active QA Runs
 
-None currently. QA-COM-PLP-CAROUSEL-RUN-001 (QA-0001) is complete.
+| QA Run ID | Feature | Date Created | Status | Tests | Blocking |
+|---|---|---|---|---|---|
+| QA-COM-CART-COUPON-001 | FEATURE-COM-CART-COUPON | 2026-06-26 | Ready for Execution | 20 total, 0 executed | None |
 
 ---
 

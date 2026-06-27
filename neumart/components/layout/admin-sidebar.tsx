@@ -18,6 +18,7 @@ import {
   Package,
   BarChart3,
   ShoppingBag,
+  Ticket,
 } from "lucide-react";
 
 const navItems = [
@@ -26,6 +27,7 @@ const navItems = [
   { title: "Products", url: "/admin/products", icon: Package },
   { title: "Inventory", url: "/admin/inventory", icon: BarChart3 },
   { title: "Orders", url: "/admin/orders", icon: ShoppingBag },
+  { title: "Coupons", url: "/admin/coupons", icon: Ticket },
 ];
 
 export function AdminSidebar() {

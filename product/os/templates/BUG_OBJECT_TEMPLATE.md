@@ -1,3 +1,37 @@
+---
+id: ""                               # e.g. BUG-COM-PLP-CAROUSEL-001
+object_type: Bug
+title: ""
+status: ""                           # Open | In Progress | Fixed | Verified | Closed | Deferred
+priority: ""                         # critical | high | medium | low
+
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+feature_id: ""                       # FEATURE-... ID (omit if not applicable)
+linked_request: ""                   # REQUEST-... ID (omit if not applicable)
+linked_risks: []                     # RISK-... IDs
+linked_decisions: []                 # DECISION-... IDs
+
+owner: ""
+created_by: ""
+created_date: ""                     # YYYY-MM-DD
+updated_date: ""                     # YYYY-MM-DD
+version: "1.0"
+schema_version: "2.0"              # Product OS schema generation version
+template_version: "1.0"           # Version of this template file
+
+---
+# Bug
+
+**Template status:** Active
+**Schema version:** 2.0
+**Use this when:** Defects affecting user flows, payments, orders, authentication, data integrity, or any critical user-facing feature. All P0/P1 bugs.
+**Do not use this when:** Cosmetic defects — wrong copy, minor layout issues, low-impact visual glitches (use BUG_MINOR_TEMPLATE.md).
+**Source-of-truth folder:** `product/objects/bugs/`
+**Related templates:** BUG_MINOR_TEMPLATE.md, INCIDENT_OBJECT_TEMPLATE.md, RCA_TEMPLATE.md
+
+---
+
+
 # Nuemart Product OS — Bug Object Template
 **Version:** 1.0 | **Date:** 2026-06-22 | **Status:** Active
 
@@ -26,6 +60,15 @@ version: "1.0"
 canonical_name: ""                   # e.g. "Carousel crashes when only 1 banner exists"
 display_name: ""
 file_slug: ""
+
+# ─────────────────────────────────────────────
+# HIERARCHY REFERENCES (V2)
+# ─────────────────────────────────────────────
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+module_area_id: ""                   # MA-COM-PLP | MA-COM-CHK | MA-ADM-ORD | etc.
+feature_id: ""                       # FEAT-XXX (which feature this bug is in)
+subfeature_id: ""                    # SUBFEATURE-XXX (if in a sub-feature)
+component_id: ""                     # CMP-XXXX (if bug is in a specific component)
 
 # ─────────────────────────────────────────────
 # BUG CLASSIFICATION

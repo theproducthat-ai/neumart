@@ -1,3 +1,37 @@
+---
+id: ""                               # e.g. DEP-COM-PLP-CAROUSEL-001
+object_type: Dependency
+title: ""
+status: ""                           # Pending | Resolved | Accepted | Blocked
+priority: ""                         # critical | high | medium | low
+
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+feature_id: ""                       # FEATURE-... ID (omit if not applicable)
+linked_request: ""                   # REQUEST-... ID (omit if not applicable)
+linked_risks: []                     # RISK-... IDs
+linked_decisions: []                 # DECISION-... IDs
+
+owner: ""
+created_by: ""
+created_date: ""                     # YYYY-MM-DD
+updated_date: ""                     # YYYY-MM-DD
+version: "1.0"
+schema_version: "2.0"              # Product OS schema generation version
+template_version: "1.0"           # Version of this template file
+
+---
+# Dependency
+
+**Template status:** Active
+**Schema version:** 2.0
+**Use this when:** Creating or documenting a new Dependency object.
+**Do not use this when:** When another more specific object type better describes what you are documenting.
+**Source-of-truth folder:** `product/objects/dependencys/`
+**Related templates:** _(see TEMPLATE_REGISTRY.md)_
+
+---
+
+
 # Nuemart Product OS — Dependency Object Template
 **Version:** 1.0 | **Date:** 2026-06-22 | **Status:** Active
 

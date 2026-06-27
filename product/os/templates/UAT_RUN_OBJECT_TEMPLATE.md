@@ -1,3 +1,37 @@
+---
+id: ""                               # e.g. UATRUN-COM-PLP-CAROUSEL-001
+object_type: UATRun
+title: ""
+status: ""                           # Not Started | In Progress | Signed Off | Rejected | Conditional
+priority: ""                         # critical | high | medium | low
+
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+feature_id: ""                       # FEATURE-... ID (omit if not applicable)
+linked_request: ""                   # REQUEST-... ID (omit if not applicable)
+linked_risks: []                     # RISK-... IDs
+linked_decisions: []                 # DECISION-... IDs
+
+owner: ""
+created_by: ""
+created_date: ""                     # YYYY-MM-DD
+updated_date: ""                     # YYYY-MM-DD
+version: "1.0"
+schema_version: "2.0"              # Product OS schema generation version
+template_version: "1.0"           # Version of this template file
+
+---
+# UATRun
+
+**Template status:** Active
+**Schema version:** 2.0
+**Use this when:** A user acceptance test run conducted by the Product Owner or stakeholder to formally sign off on a feature before release.
+**Do not use this when:** Engineer or QA-led testing (use QA_RUN_OBJECT_TEMPLATE.md). Smoke tests (use QA_SMOKE_TEST_TEMPLATE.md).
+**Source-of-truth folder:** `product/objects/uat-runs/`
+**Related templates:** QA_RUN_OBJECT_TEMPLATE.md, RELEASE_OBJECT_TEMPLATE.md, FEATURE_OBJECT_TEMPLATE.md
+
+---
+
+
 # Nuemart Product OS — UAT Run Object Template
 **Version:** 1.0 | **Date:** 2026-06-22 | **Status:** Active
 

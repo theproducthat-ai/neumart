@@ -1,6 +1,12 @@
 # Nuemart Product OS — Dependency Map
 
-**Version:** 1.0 | **Date:** 2026-06-22 | **Status:** Active
+**Version:** 1.0 | **Date:** 2026-06-22 | **Status:** SUPERSEDED — Read-only
+
+> **SUPERSEDED** (2026-06-24): This file is the V1 dependency map. The authoritative V2 replacements are:
+> - **`product/indexes/DEPENDENCY_INDEX.md`** — cross-object dependencies (blocked object → blocking object)
+> - **`product/indexes/MODULE_DEPENDENCY_MAP.md`** — module-to-module dependency matrix
+>
+> Do not add new entries here. This file is retained for historical reference only.
 
 ---
 

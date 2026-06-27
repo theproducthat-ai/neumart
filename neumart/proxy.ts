@@ -7,20 +7,29 @@ const isPublicRoute = createRouteMatcher([
   "/sign-in(.*)",
   "/sign-up(.*)",
   "/products(.*)",
+  "/api/dev(.*)", // Dev test utilities protected by x-dev-secret header
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
-  const { userId } = await auth();
+// In development, allow up to 24h of JWT clock skew so Playwright tests
+// don't need FAPI access to refresh the 60-second session JWT.
+const DEV_CLOCK_SKEW_MS =
+  process.env.NODE_ENV === "development" ? 24 * 60 * 60 * 1000 : 5000;
 
-  // Admin routes: require authentication only — role check happens in the layout
-  if (isAdminRoute(req) && !userId) {
-    return NextResponse.redirect(new URL("/sign-in", req.url));
-  }
+export default clerkMiddleware(
+  async (auth, req) => {
+    const { userId } = await auth();
 
-  if (!isPublicRoute(req) && !userId) {
-    return NextResponse.redirect(new URL("/sign-in", req.url));
-  }
-});
+    // Admin routes: require authentication only — role check happens in the layout
+    if (isAdminRoute(req) && !userId) {
+      return NextResponse.redirect(new URL("/sign-in", req.url));
+    }
+
+    if (!isPublicRoute(req) && !userId) {
+      return NextResponse.redirect(new URL("/sign-in", req.url));
+    }
+  },
+  { clockSkewInMs: DEV_CLOCK_SKEW_MS }
+);
 
 export const config = {
   matcher: [

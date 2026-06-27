@@ -1,3 +1,37 @@
+---
+id: ""                               # e.g. QARUN-COM-PLP-CAROUSEL-001
+object_type: QARun
+title: ""
+status: ""                           # Not Started | In Progress | Passed | Failed | Conditional Pass
+priority: ""                         # critical | high | medium | low
+
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+feature_id: ""                       # FEATURE-... ID (omit if not applicable)
+linked_request: ""                   # REQUEST-... ID (omit if not applicable)
+linked_risks: []                     # RISK-... IDs
+linked_decisions: []                 # DECISION-... IDs
+
+owner: ""
+created_by: ""
+created_date: ""                     # YYYY-MM-DD
+updated_date: ""                     # YYYY-MM-DD
+version: "1.0"
+schema_version: "2.0"              # Product OS schema generation version
+template_version: "1.0"           # Version of this template file
+
+---
+# QARun
+
+**Template status:** Active
+**Schema version:** 2.0
+**Use this when:** A full QA test run for a feature or release — covering all test cases, edge cases, and regression scenarios for the feature in scope.
+**Do not use this when:** Quick post-hotfix sanity checks (use QA_SMOKE_TEST_TEMPLATE.md). User acceptance testing run by the product owner (use UAT_RUN_OBJECT_TEMPLATE.md).
+**Source-of-truth folder:** `product/objects/qa-runs/`
+**Related templates:** QA_SMOKE_TEST_TEMPLATE.md, UAT_RUN_OBJECT_TEMPLATE.md, TEST_CASE_OBJECT_TEMPLATE.md
+
+---
+
+
 # Nuemart Product OS — QA Run Object Template
 **Version:** 1.0 | **Date:** 2026-06-22 | **Status:** Active
 

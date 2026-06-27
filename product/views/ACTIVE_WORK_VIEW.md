@@ -15,6 +15,7 @@ This view summarizes all currently active product work. It is derived from Objec
 | Feature ID | Name | Status | Blocking Issue | Next Action |
 |---|---|---|---|---|
 | FEATURE-COM-PLP-CAROUSEL | Promotional Banner Carousel | ✅ UAT Conditional Pass — Ready for Release | None — gate G7 cleared 2026-06-23 | `/product-release REQ-0002` |
+| FEATURE-COM-CART-COUPON | Discount Coupon System | 🔵 QA Ready for Execution — QA-COM-CART-COUPON-001 | None | Execute 20 test cases in QA-COM-CART-COUPON-001; then `/product-uat FEATURE-COM-CART-COUPON` |
 | FEATURE-DEL-CORE-DELIVERY-MVP | Delivery Management MVP | PRD Approved, Development Not Started | Sequenced after Razorpay Phase 11 | `/product-devplan` when ready to build |
 
 ---
@@ -47,8 +48,10 @@ This view summarizes all currently active product work. It is derived from Objec
 ## 5. Upcoming Work (Next)
 
 1. **RELEASE-COM-PLP-CAROUSEL-2026-06** — After UAT sign-off
-2. **Phase 11: Razorpay integration** — Awaiting merchant account approval (external dependency)
-3. **FEATURE-DEL-CORE-DELIVERY-MVP development** — After Razorpay Phase 11 completes
+2. **REQUEST-COM-CART-COUPON-001 (REQ-0010)** — Devplan complete 2026-06-25. DEVPLAN-COM-CART-COUPON-001 (6 phases, 16 tasks) + PROMPT-COM-CART-COUPON-001 written. Feature: FEATURE-COM-CART-COUPON. Next: developer implements per DEVPLAN-COM-CART-COUPON-001. After dev complete → `/product-qa FEATURE-COM-CART-COUPON`.
+3. **REQUEST-COM-PLP-CARD-LAYOUT-001** — Grilled 2026-06-25. Next: write user story, then lightweight devplan. Dependency: check REQ-0003 QA outcome before confirming price-alignment scope.
+4. **Phase 11: Razorpay integration** — Awaiting merchant account approval (external dependency). Note: DEP-COM-CART-COUPON-RAZORPAY-001 — coupon calculation reusability required before Razorpay ships.
+5. **FEATURE-DEL-CORE-DELIVERY-MVP development** — After Razorpay Phase 11 completes
 
 ---
 

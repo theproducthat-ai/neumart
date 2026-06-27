@@ -20,6 +20,46 @@ Run User Acceptance Testing, collect product owner or stakeholder feedback, capt
 
 ---
 
+## Lane 1 — UAT Not Required
+
+If the source object is a Bug Object on Lane 1 (Fast Fix), UAT is not required. Output the following block immediately and stop. Do not create any UAT objects.
+
+```
+UAT NOT REQUIRED
+================
+Source object:  {BUG-ID} (product/objects/bugs/{BUG-ID}.md)
+Source type:    Bug
+Lane:           Lane 1 — Fast Fix
+Template:       Not applicable
+
+REASON:
+  Lane 1 Fast Fix bugs do not require UAT.
+  QA smoke check is sufficient verification for a Lane 1 bug fix.
+
+ARTIFACTS NOT REQUIRED:
+  - UAT Run
+  - UAT Feedback Objects
+  - UAT Sign-off
+  - Known Limitation Objects
+  - UAT Index update (product/indexes/UAT_INDEX.md)
+
+Do NOT create:
+  - product/objects/uat-runs/
+  - product/objects/feedback/
+  - product/objects/limitations/
+
+WRITE MODE:    {DRY-RUN | LIVE}
+FILES CHANGED: No
+CODE CHANGED:  No
+LEGACY SYNC:   No
+
+NEXT ACTION:
+→ Implement the fix. Update bug fix_status to Fixed / Merged / Ready for QA.
+  Then run: /product-qa {BUG-ID}
+```
+
+---
+
 ## Pre-conditions
 - QA Run Object must exist with `overall_result: Passed` or `Conditionally Passed`.
 - If QA result is `Failed`, AI blocks UAT and directs user to resolve bugs first.
@@ -194,3 +234,5 @@ Files written:
 - **Product owner not available:** AI can create the UAT Scenario list and wait. Notes that UAT is blocked pending human review.
 - **UAT finds a regression in an existing feature:** AI logs the regression bug, notes it as out-of-scope for this UAT but critical to resolve, and creates a separate Request Object for tracking.
 - **Waiver requested (skip UAT):** AI creates a Decision Object documenting the waiver reason, requires explicit product owner acknowledgment in the UAT Run, and notes the waiver in the Release Object.
+- **Source object is a Lane 1 Bug Object**: INVALID — output UAT NOT REQUIRED block (format above). Do not create any UAT artifacts. Do not create uat-runs/, feedback/, or limitations/ entries.
+- **UAT artifacts created for Lane 1 bug**: INVALID — this is a protocol violation. UAT is explicitly not required for Lane 1 Fast Fix bugs regardless of `--dry-run` flag.

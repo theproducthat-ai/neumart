@@ -1,6 +1,11 @@
 # Nuemart Product OS — Object Index
 
-**Version:** 1.0 | **Date:** 2026-06-22 | **Status:** Active
+**Version:** 1.0 | **Date:** 2026-06-22 | **Status:** SUPERSEDED — Read-only
+
+> **SUPERSEDED** (2026-06-24): This file is the V1 object index. The authoritative V2 replacement is:
+> **`product/indexes/MASTER_OBJECT_INDEX.md`**
+>
+> Do not add new entries here. This file is retained for historical reference only.
 
 ---
 

@@ -1,3 +1,37 @@
+---
+id: ""                               # e.g. REQUEST-COM-PLP-CAROUSEL-001
+object_type: Request
+title: ""
+status: ""                           # Submitted | Classified | Grilled | Evaluated | PRD In Progress | PRD Approved | In Development | QA | UAT | Released | Rejected | Deferred
+priority: ""                         # critical | high | medium | low
+
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+feature_id: ""                       # FEATURE-... ID (omit if not applicable)
+linked_request: ""                   # REQUEST-... ID (omit if not applicable)
+linked_risks: []                     # RISK-... IDs
+linked_decisions: []                 # DECISION-... IDs
+
+owner: ""
+created_by: ""
+created_date: ""                     # YYYY-MM-DD
+updated_date: ""                     # YYYY-MM-DD
+version: "1.0"
+schema_version: "2.0"              # Product OS schema generation version
+template_version: "1.0"           # Version of this template file
+
+---
+# Request
+
+**Template status:** Active
+**Schema version:** 2.0
+**Use this when:** Capturing any incoming product request that needs triage — from customers, stakeholders, analytics, support, or internal sources.
+**Do not use this when:** Requests that are clearly a minor fix or copy change and need no triage (use REQUEST_QUICK_TEMPLATE.md). Bug reports (use BUG_OBJECT_TEMPLATE.md).
+**Source-of-truth folder:** `product/objects/requests/`
+**Related templates:** REQUEST_QUICK_TEMPLATE.md, FEATURE_OBJECT_TEMPLATE.md, BUG_OBJECT_TEMPLATE.md
+
+---
+
+
 # Nuemart Product OS — Request Object Template
 **Version:** 1.0 | **Date:** 2026-06-22 | **Status:** Active
 
@@ -26,6 +60,16 @@ version: "1.0"
 canonical_name: ""
 display_name: ""
 file_slug: ""
+
+# ─────────────────────────────────────────────
+# HIERARCHY REFERENCES (V2)
+# ─────────────────────────────────────────────
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+module_area_id: ""                   # MA-COM-PLP | MA-COM-CHK | MA-ADM-ORD | etc.
+capability_id: ""                    # CAP-XXXX (if this request enhances an existing capability)
+feature_id: ""                       # FEAT-XXX (if this maps to an existing feature)
+subfeature_id: ""                    # SUBFEATURE-XXX (if sub-feature scope)
+component_id: ""                     # CMP-XXXX (if component-specific, optional)
 
 # ─────────────────────────────────────────────
 # REQUEST-SPECIFIC FIELDS

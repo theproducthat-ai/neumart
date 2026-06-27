@@ -28,7 +28,9 @@ Update both files whenever a request changes status.
 
 > Requests being questioned for clarity, feasibility and completeness before evaluation begins.
 
-*No active requests in this stage.*
+| REQ ID | Title | Next Action |
+|---|---|---|
+| REQ-0009 | Product Card Image Size Reduction and Price-Name Alignment | Answer two grilling questions: target image size and price alignment scope vs REQ-0003 |
 
 ---
 

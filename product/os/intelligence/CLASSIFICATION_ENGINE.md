@@ -273,3 +273,62 @@ classification:
 - `FEATURE_MASTER.md` — Feature registry used in Step 7
 - `APPROVAL_GATES.md` — Gate definitions triggered by blocking flags in Step 8
 - `IMPACT_ENGINE.md` — Picks up blocking flags from classification
+
+---
+
+## V2 Extensions (Product OS V2)
+
+_These extensions connect the Classification Engine to the V2 five-layer architecture. The V1 steps above are unchanged._
+
+### Step 9 — Map to Work Type Lane
+
+After completing Steps 1-8, use the `request_type` and `blocking_flags` to assign a work type lane:
+
+| request_type | Blocking Flags | → Work Type Lane |
+|---|---|---|
+| Emergency | any | Incident |
+| Bug Fix | schema_change or payment_change | Standard Feature lane |
+| Bug Fix | none | Fast Fix lane |
+| Feature Enhancement | none, small scope | Small Enhancement lane |
+| Feature Enhancement | large scope or multiple modules | Standard Feature lane |
+| New Feature | none | Standard Feature lane |
+| New Feature | cross-cutting or strategic | Strategic Initiative lane |
+| Technical Debt | none | Tech Debt lane |
+| Configuration Change | none | Operational Change lane |
+| compliance / legal | any | Compliance/Security lane |
+| experiment / A/B | any | Experiment lane |
+
+Pass the assigned lane to the [LANE_SELECTION_ENGINE.md](LANE_SELECTION_ENGINE.md).
+
+### Step 10 — Route to Correct Object Type
+
+Based on the work type lane, confirm the correct primary object type to create:
+
+| Work Type Lane | Primary Object |
+|---|---|
+| Fast Fix | `objects/bugs/` |
+| Small Enhancement / Standard Feature / Strategic Initiative | `objects/requests/` → `objects/features/` |
+| Incident | `objects/incidents/` |
+| Tech Debt | `objects/requests/` with type = tech_debt |
+| Experiment | `objects/experiments/` |
+
+### V2 Output Block Extension
+
+Add to the classification block:
+
+```yaml
+classification:
+  # ... V1 fields above ...
+  work_type_lane: Fast Fix | Small Enhancement | Standard Feature | Strategic Initiative | Incident | Compliance | Tech Debt | Operational Change | Business/Commercial | Experiment
+  primary_object_type: requests | bugs | incidents | experiments
+  lane_confidence: High | Medium | Low
+```
+
+### V2 Related Files
+
+- `LANE_SELECTION_ENGINE.md` — Validates and confirms the work type lane
+- `ARTIFACT_REQUIREMENT_ENGINE.md` — Determines which artifacts are required given the lane
+- `IMPACT_ANALYSIS_ENGINE.md` — Cross-module impact analysis
+- `product/os/policies/WORK_TYPE_LANES.md` — Source of truth for lane definitions
+- `product/os/policies/REQUEST_CLASSIFICATION_RULES.md` — Classification rules in human-readable form
+- `product/os/PRODUCT_OS_V2_ARCHITECTURE.md` — V2 architecture overview

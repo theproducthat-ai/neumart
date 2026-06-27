@@ -1,5 +1,5 @@
 # Nuemart Product OS — Product Impact Interface
-**Version:** 1.0 | **Date:** 2026-06-22 | **Status:** Active
+**Version:** 1.1 | **Date:** 2026-06-24 | **Status:** Active
 
 ---
 
@@ -9,7 +9,13 @@
 ---
 
 ## Purpose
-Systematic impact assessment of a request or feature. Identify every affected module, screen, data entity, API, user role, and integration. Surface regression risks, dependencies, and gate requirements before any development begins. Impact assessment is mandatory before PRD creation for any high-risk or cross-module change.
+Systematic impact assessment of a request or feature. This command runs **two engines in sequence**, each with a distinct scope:
+
+1. **IMPACT_ANALYSIS_ENGINE.md** (blast-radius analysis) — Run first. Maps cross-module dependencies, data flows, user groups, and external systems. Determines whether the work is well-scoped for the chosen lane. Used before planning begins.
+
+2. **IMPACT_GATE_ENGINE.md** (gate-level checks) — Run second. Evaluates 12 specific risk categories to determine which governance gates must be cleared before PRD, development, QA, UAT, and release.
+
+AI agents must invoke IMPACT_ANALYSIS_ENGINE first to understand scope, then IMPACT_GATE_ENGINE to determine gate requirements. Do not skip blast-radius analysis for cross-module or schema-changing work.
 
 ---
 

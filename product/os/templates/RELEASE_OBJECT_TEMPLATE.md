@@ -1,3 +1,45 @@
+---
+id: ""                               # e.g. RELEASE-COM-PLP-CAROUSEL-001
+object_type: Release
+title: ""
+status: ""                           # Planned | In Progress | Released | Rolled Back
+priority: ""                         # critical | high | medium | low
+
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+feature_id: ""                       # FEATURE-... ID (omit if not applicable)
+linked_request: ""                   # REQUEST-... ID (omit if not applicable)
+linked_risks: []                     # RISK-... IDs
+linked_decisions: []                 # DECISION-... IDs
+
+owner: ""
+created_by: ""
+created_date: ""                     # YYYY-MM-DD
+updated_date: ""                     # YYYY-MM-DD
+version: "1.0"
+schema_version: "2.0"              # Product OS schema generation version
+template_version: "1.0"           # Version of this template file
+success_metrics: []              # KPI IDs or descriptive metrics
+guardrail_metrics: []            # Metrics that must not regress
+analytics_events: []             # ANALYTICS_EVENT-... IDs
+dashboard_required: false        # Whether a dashboard object is needed
+baseline_value: ""               # Current baseline before change
+target_value: ""                 # Target value after change
+measurement_window: ""           # e.g. "30 days post-release"
+metric_owner: ""                 # Who owns tracking this metric
+
+---
+# Release
+
+**Template status:** Active
+**Schema version:** 2.0
+**Use this when:** Documenting any planned production release — feature release, sprint release, or milestone release.
+**Do not use this when:** Emergency hotfixes that bypass the normal release cycle (use RELEASE_HOTFIX_TEMPLATE.md).
+**Source-of-truth folder:** `product/objects/releases/`
+**Related templates:** RELEASE_HOTFIX_TEMPLATE.md, BUILD_OBJECT_TEMPLATE.md, QA_RUN_OBJECT_TEMPLATE.md
+
+---
+
+
 # Nuemart Product OS — Release Object Template
 **Version:** 1.0 | **Date:** 2026-06-22 | **Status:** Active
 
@@ -26,6 +68,13 @@ version: "1.0"
 canonical_name: ""                   # e.g. "Nuemart v1.2.0 — Carousel Feature Release"
 display_name: ""
 file_slug: ""
+
+# ─────────────────────────────────────────────
+# HIERARCHY REFERENCES (V2)
+# ─────────────────────────────────────────────
+modules_included: []                 # List of MOD-XXX IDs for modules in this release
+module_areas_included: []            # List of MA-XXX-YYY IDs for module areas in this release
+feature_ids: []                      # List of FEAT-XXX IDs shipped in this release
 
 # ─────────────────────────────────────────────
 # RELEASE SPECIFIC FIELDS

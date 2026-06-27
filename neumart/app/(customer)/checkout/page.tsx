@@ -8,6 +8,7 @@ import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useCartStore } from "@/store/cart-store";
+import { DiscountLineItem } from "@/components/cart/DiscountLineItem";
 import {
   Package,
   MapPin,
@@ -25,7 +26,7 @@ import { formatCurrency } from "@/lib/format";
 export default function CheckoutPage() {
   const router = useRouter();
   const { isAuthenticated } = useConvexAuth();
-  const { items, clearCart } = useCartStore();
+  const { items, clearCart, appliedCoupon, removeCoupon } = useCartStore();
   const [placing, setPlacing] = useState(false);
 
   const defaultAddress = useQuery(
@@ -45,7 +46,8 @@ export default function CheckoutPage() {
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const totalItems = items.reduce((s, i) => s + i.quantity, 0);
   const deliveryFee = 0;
-  const total = subtotal + deliveryFee;
+  const discountAmount = appliedCoupon?.discountAmount ?? 0;
+  const total = subtotal - discountAmount + deliveryFee;
 
   async function handlePlaceOrder() {
     if (!defaultAddress) {
@@ -61,9 +63,11 @@ export default function CheckoutPage() {
           productId: i.productId as Id<"products">,
           quantity: i.quantity,
         })),
+        couponCode: appliedCoupon?.code,
       });
 
       clearCart();
+      removeCoupon();
       router.push(`/orders/${orderId}?placed=1`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to place order";
@@ -139,6 +143,12 @@ export default function CheckoutPage() {
               </span>
               <span>{formatCurrency(subtotal)}</span>
             </div>
+            {appliedCoupon && (
+              <DiscountLineItem
+                code={appliedCoupon.code}
+                discountAmount={appliedCoupon.discountAmount}
+              />
+            )}
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Delivery</span>
               <span className="font-medium text-green-600">Free</span>

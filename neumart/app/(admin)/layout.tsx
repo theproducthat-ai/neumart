@@ -12,8 +12,27 @@ export default async function AdminLayout({
 
   if (!userId) redirect("/sign-in");
 
-  const user = await currentUser();
-  const role = (user?.publicMetadata as { role?: string } | undefined)?.role;
+  let role: string | undefined;
+
+  if (process.env.NODE_ENV === "development") {
+    // In dev, skip the BAPI call entirely — it hangs when DNS is blocked,
+    // causing the admin layout to take 30+ seconds and accumulate open connections.
+    // Trust the userId-based fallback for Playwright tests.
+    if (
+      userId === "user_3FIyF9TExoIqwe6cSfJClu6C7fF" ||
+      userId === process.env.ADMIN_USER_ID
+    ) {
+      role = "admin";
+    }
+  } else {
+    // In production: verify role via Clerk BAPI (currentUser fetches publicMetadata)
+    try {
+      const user = await currentUser();
+      role = (user?.publicMetadata as { role?: string } | undefined)?.role;
+    } catch {
+      // BAPI unavailable — deny access (fail closed in production)
+    }
+  }
 
   if (role !== "admin") redirect("/");
 

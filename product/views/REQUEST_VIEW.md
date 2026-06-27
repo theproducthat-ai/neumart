@@ -18,6 +18,8 @@ This view tracks all product requests. It clearly separates request status from 
 |---|---|---|---|---|---|---|---|---|---|---|
 | REQUEST-COM-PLP-CAROUSEL-001 | REQ-0002 | Promotional Banner Carousel on PLP | COM/PLP — New Feature | Ready for UAT | FEATURE-COM-PLP-CAROUSEL | PRD-COM-PLP-CAROUSEL-V1 (Draft) | Complete | QA-0001 Passed | UAT-0001 In Progress | Pending |
 | REQUEST-DEL-CORE-DELIVERY-MVP-001 | REQ-0001 | Delivery Module MVP | DEL — New Module | PRD Approved | FEATURE-DEL-CORE-DELIVERY-MVP | PRD-0001 Approved | Not Started | Not Run | Not Run | Not Planned |
+| REQUEST-COM-CART-COUPON-001 | REQ-0010 | Discount Coupon System — Admin Creation and Customer Cart Application | COM/CART — New Feature | Devplan Complete | FEATURE-COM-CART-COUPON | [PRD-COM-CART-COUPON-V1](../objects/prds/PRD-COM-CART-COUPON-V1.md) (Approved + G4 Cleared) | Ready to Build | Not Run | Not Run | Not Planned |
+| REQUEST-COM-PLP-CARD-LAYOUT-001 | REQ-0009 | Product Card Image Size Reduction and Price-Name Alignment | COM/PLP — Small Enhancement | Grilled | — | Not required (Lane 2) | Not Started | Not Run | Not Run | Not Planned |
 
 ---
 

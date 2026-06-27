@@ -1,3 +1,37 @@
+---
+id: ""                               # e.g. US-0015
+object_type: Story
+title: ""
+status: ""                           # draft | ready | in-progress | in-review | in-qa | done | deferred
+priority: ""                         # critical | high | medium | low
+
+module_id: ""                        # MOD-COM | MOD-ADM | MOD-DEL | MOD-INV | MOD-PAY | MOD-USR | MOD-RPT
+feature_id: ""                       # FEATURE-... ID (omit if not applicable)
+linked_request: ""                   # REQUEST-... ID (omit if not applicable)
+linked_risks: []                     # RISK-... IDs
+linked_decisions: []                 # DECISION-... IDs
+
+owner: ""
+created_by: ""
+created_date: ""                     # YYYY-MM-DD
+updated_date: ""                     # YYYY-MM-DD
+version: "1.0"
+schema_version: "2.0"              # Product OS schema generation version
+template_version: "1.0"           # Version of this template file
+
+---
+# Story
+
+**Template status:** Active
+**Schema version:** 2.0
+**Use this when:** A general-purpose story object when the full user-story format is not appropriate — e.g. technical stories, infrastructure stories, or internal tasks framed as stories.
+**Do not use this when:** Customer-facing user stories that should follow the "As a [role]…" format (use USER_STORY_OBJECT_TEMPLATE.md).
+**Source-of-truth folder:** `product/objects/stories/`
+**Related templates:** USER_STORY_OBJECT_TEMPLATE.md, TASK_OBJECT_TEMPLATE.md
+
+---
+
+
 # Nuemart Product OS — Story Object Template
 **Version:** 1.0 | **Date:** 2026-06-22 | **Status:** Active
 

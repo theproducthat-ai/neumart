@@ -85,6 +85,32 @@ export default defineSchema({
     .index("by_userId", ["userId"])
     .index("by_userId_and_productId", ["userId", "productId"]),
 
+  coupons: defineTable({
+    code: v.string(),
+    discountType: v.string(),
+    discountValue: v.number(),
+    minimumOrderValue: v.optional(v.number()),
+    maximumDiscount: v.optional(v.number()),
+    usageLimit: v.optional(v.number()),
+    perUserLimit: v.optional(v.number()),
+    startsAt: v.optional(v.number()),
+    expiresAt: v.optional(v.number()),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_code", ["code"])
+    .index("by_isActive", ["isActive"]),
+
+  couponUsages: defineTable({
+    couponId: v.id("coupons"),
+    userId: v.id("users"),
+    orderId: v.id("orders"),
+    discountAmount: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_couponId", ["couponId"])
+    .index("by_couponId_and_userId", ["couponId", "userId"]),
+
   orders: defineTable({
     userId: v.id("users"),
     addressId: v.id("addresses"),
@@ -106,10 +132,18 @@ export default defineSchema({
     paymentMethod: v.string(),     // "pay_later", "razorpay", etc.
     subtotal: v.number(),          // paise
     deliveryFee: v.number(),       // paise
-    total: v.number(),             // paise
+    total: v.number(),             // paise (subtotal - discountAmount + deliveryFee)
     currency: v.string(),          // "INR"
     itemCount: v.number(),
     notes: v.optional(v.string()),
+    // Coupon fields — optional, only set when a coupon was applied
+    discountAmount: v.optional(v.number()),
+    couponId: v.optional(v.id("coupons")),
+    couponCodeSnapshot: v.optional(v.string()),
+    couponDiscountTypeSnapshot: v.optional(v.string()),
+    couponDiscountValueSnapshot: v.optional(v.number()),
+    couponMaxDiscountSnapshot: v.optional(v.number()),
+    couponAppliedAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

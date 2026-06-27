@@ -10,17 +10,21 @@ import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/store/cart-store";
+import { CouponInputField } from "@/components/cart/CouponInputField";
+import { DiscountLineItem } from "@/components/cart/DiscountLineItem";
 import { formatCurrency } from "@/lib/format";
 
 export default function CartPage() {
   const router = useRouter();
   const { isSignedIn } = useUser();
   const { isAuthenticated } = useConvexAuth();
-  const { items, updateQuantity, removeItem } = useCartStore();
+  const { items, updateQuantity, removeItem, appliedCoupon } = useCartStore();
   const hasAddr = useQuery(api.addresses.hasAddress, isAuthenticated ? {} : "skip");
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
+  const discountAmount = appliedCoupon?.discountAmount ?? 0;
+  const displayTotal = subtotal - discountAmount;
 
   function handleCheckout() {
     if (!isSignedIn) {
@@ -147,14 +151,30 @@ export default function CartPage() {
 
       <Separator className="my-6" />
 
+      {/* Coupon input */}
+      <div className="mb-6 space-y-2">
+        <p className="text-sm font-medium">Have a coupon?</p>
+        <CouponInputField subtotal={subtotal} />
+      </div>
+
       {/* Summary + checkout */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
+        <div className="space-y-1">
           <div className="flex items-baseline gap-2">
             <span className="text-muted-foreground">Subtotal</span>
-            <span className="text-2xl font-bold">{formatCurrency(subtotal)}</span>
+            <span className="text-lg font-semibold">{formatCurrency(subtotal)}</span>
           </div>
-          <p className="mt-0.5 text-xs text-muted-foreground">
+          {appliedCoupon && (
+            <DiscountLineItem
+              code={appliedCoupon.code}
+              discountAmount={appliedCoupon.discountAmount}
+            />
+          )}
+          <div className="flex items-baseline gap-2">
+            <span className="text-muted-foreground">Cart total</span>
+            <span className="text-2xl font-bold">{formatCurrency(displayTotal)}</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
             Delivery charges calculated at checkout.
           </p>
         </div>
